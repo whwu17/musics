@@ -7,7 +7,7 @@ Timezone: Etc/UTC
 collections:
   musics:
     output: true
-    permalink: /musics/:path/
+    permalink: /:path/
 
 paginate: 10
 permalink: pretty
