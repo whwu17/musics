@@ -1,6 +1,7 @@
 
 # Wenhan's Music Player
 
+CPlayer is extracted from https://github.com/Ivyee17/cPlayer.
 
 ## Develop
 
