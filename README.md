@@ -1,7 +1,6 @@
 
-# Wenhan's Home
+# Wenhan's Music Player
 
-Nothing more than visiting right now: [Link](https://ivyee17.github.io/)!
 
 ## Develop
 
