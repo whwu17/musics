@@ -6,6 +6,8 @@ playlist:
    lyric: '/musics/wqf-didixingchui.txt'
    title: '低低星垂'
    artist: '吴青峰'
+   album: '册叶一：一与一'
+   artist_url: 'https://zh.wikipedia.org/wiki/吴青峰'
  - song: '/musics/吴青峰-我会我会.mp3'
    poster: '/musics/wqf-cover.jpg'
    lyric: '/musics/吴青峰-我会我会.lrc'

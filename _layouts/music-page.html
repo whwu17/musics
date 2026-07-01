@@ -131,34 +131,96 @@
             height: min(62vh, 520px);
         }
 
+        #fsp-title-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
         #fsp-title {
             font-size: clamp(22px, 3.4vw, 40px);
             font-weight: 700;
-            margin: 0 0 6px;
+            margin: 0;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        #fsp-info-btn {
+            flex: 0 0 auto;
+            margin-top: 4px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            opacity: 0.85;
+            transition: opacity 0.2s ease, background 0.2s ease;
+        }
+
+        #fsp-info-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.14);
         }
 
         #fsp-artist {
             font-size: clamp(14px, 1.6vw, 20px);
             opacity: 0.7;
-            margin-bottom: 14px;
+            margin-bottom: 8px;
         }
+
+        #fsp-lyrics-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            min-height: 28px;
+        }
+
+        #fsp-lyrics-hint {
+            font-size: 12px;
+            opacity: 0.45;
+        }
+
+        #fsp-lyrics-follow {
+            display: none;
+            border: none;
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #fff;
+            background: rgba(140, 168, 255, 0.28);
+            cursor: pointer;
+        }
+
+        #fsp-lyrics-follow.visible { display: inline-block; }
 
         #fsp-lyrics {
             position: relative;
             flex: 1 1 auto;
-            overflow: hidden;
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+        }
+
+        #fsp-lyrics::-webkit-scrollbar { width: 6px; }
+        #fsp-lyrics::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
         }
 
         #fsp-lyrics-lines {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
             padding: 42% 0;
-            transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
-            will-change: transform;
         }
 
         .fsp-line {
@@ -373,6 +435,141 @@
         .fsp-pl-artist { font-size: 12px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .fsp-pl-item.active .fsp-pl-name { color: var(--accent); }
 
+        /* View mode: art only / lyrics only / both */
+        #fsp-view-btn {
+            position: relative;
+        }
+
+        #fsp-view-btn .fsp-view-label {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            font-size: 8px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 4px;
+            padding: 1px 3px;
+            line-height: 1.2;
+        }
+
+        #fsp.fsp-view-art #fsp-side { display: none; }
+        #fsp.fsp-view-art #fsp-main { justify-content: center; }
+
+        #fsp.fsp-view-lyrics #fsp-art-wrap { display: none; }
+        #fsp.fsp-view-lyrics #fsp-side {
+            max-width: min(760px, 92vw);
+            text-align: center;
+        }
+
+        #fsp.fsp-view-lyrics .fsp-line { transform-origin: center; }
+
+        /* Song / album / artist details */
+        #fsp-details {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.55);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        #fsp-details.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #fsp-details-card {
+            width: min(420px, 92vw);
+            max-height: min(78vh, 560px);
+            overflow-y: auto;
+            border-radius: 18px;
+            background: rgba(18, 18, 28, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+            padding: 22px 22px 18px;
+        }
+
+        #fsp-details-head {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        #fsp-details-cover {
+            width: 88px;
+            height: 88px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex: 0 0 auto;
+            background: #222;
+        }
+
+        #fsp-details-title {
+            margin: 0 0 4px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        #fsp-details-artist,
+        #fsp-details-album {
+            margin: 0 0 4px;
+            font-size: 14px;
+            opacity: 0.72;
+        }
+
+        #fsp-details-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 26px;
+            line-height: 1;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        #fsp-details-close:hover { opacity: 1; }
+
+        .fsp-details-section {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .fsp-details-section h3 {
+            margin: 0 0 10px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            opacity: 0.55;
+        }
+
+        .fsp-details-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .fsp-details-links a {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.2s ease;
+        }
+
+        .fsp-details-links a:hover { background: rgba(140, 168, 255, 0.24); }
+
         @media (max-width: 760px) {
             #fsp-main { flex-direction: column; gap: 18px; padding-top: 4vh; }
             #fsp-art { width: clamp(150px, 30vh, 220px); height: clamp(150px, 30vh, 220px); }
@@ -395,8 +592,15 @@
                 <div id="fsp-art"><img id="fsp-art-img" alt="cover" /></div>
             </div>
             <div id="fsp-side">
-                <h1 id="fsp-title"></h1>
+                <div id="fsp-title-row">
+                    <h1 id="fsp-title"></h1>
+                    <button id="fsp-info-btn" type="button" title="歌曲详情" aria-label="歌曲详情">i</button>
+                </div>
                 <div id="fsp-artist"></div>
+                <div id="fsp-lyrics-toolbar">
+                    <span id="fsp-lyrics-hint">滚动浏览歌词，点击一句可跳转播放</span>
+                    <button id="fsp-lyrics-follow" type="button">回到当前句</button>
+                </div>
                 <div id="fsp-lyrics">
                     <div id="fsp-lyrics-lines"></div>
                     <div id="fsp-lyrics-empty">暂无同步歌词</div>
@@ -423,9 +627,31 @@
                     <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12z"/></svg>
                     <input id="fsp-vol-range" class="fsp-range" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="音量" />
                 </div>
+                <button id="fsp-view-btn" class="fsp-btn" type="button" title="显示模式：封面+歌词">
+                    <svg viewBox="0 0 24 24"><path d="M4 5h7v7H4zm9 0h7v7h-7zM4 14h7v7H4zm9 0h7v7h-7z"/></svg>
+                    <span class="fsp-view-label">全</span>
+                </button>
                 <button id="fsp-list-btn" class="fsp-btn" type="button" title="播放列表">
                     <svg viewBox="0 0 24 24"><path d="M3 6h13v2H3zm0 5h13v2H3zm0 5h9v2H3zm15-9l4 3-4 3z"/></svg>
                 </button>
+            </div>
+        </div>
+
+        <div id="fsp-details" role="dialog" aria-modal="true" aria-labelledby="fsp-details-title">
+            <div id="fsp-details-card">
+                <div id="fsp-details-head">
+                    <img id="fsp-details-cover" alt="" />
+                    <div>
+                        <h2 id="fsp-details-title"></h2>
+                        <p id="fsp-details-artist"></p>
+                        <p id="fsp-details-album"></p>
+                    </div>
+                    <button id="fsp-details-close" type="button" aria-label="关闭">&times;</button>
+                </div>
+                <div class="fsp-details-section">
+                    <h3>了解更多</h3>
+                    <div id="fsp-details-links" class="fsp-details-links"></div>
+                </div>
             </div>
         </div>
 
@@ -474,6 +700,10 @@
                     poster: baseurl + '{{ details.poster }}',
                     name: '{{ details.title }}' || songname.split('-')[1],
                     artist: '{{ details.artist }}' || songname.split('-')[0],
+                    album: '{{ details.album }}' || '',
+                    artist_url: '{{ details.artist_url }}' || '',
+                    album_url: '{{ details.album_url }}' || '',
+                    song_url: '{{ details.song_url }}' || '',
                     lyric: _lyric,
                     sublyric: _sublyric
                 });
@@ -483,7 +713,17 @@
         {% endfor %}
         Promise.all(promises).then(function () {
             var trackData = playlist.map(function (it) {
-                return { name: it.name, artist: it.artist, poster: it.poster, lyric: it.lyric, src: it.src };
+                return {
+                    name: it.name,
+                    artist: it.artist,
+                    album: it.album,
+                    artist_url: it.artist_url,
+                    album_url: it.album_url,
+                    song_url: it.song_url,
+                    poster: it.poster,
+                    lyric: it.lyric,
+                    src: it.src
+                };
             });
             var player = new cplayer({ element: document.getElementById('app'), playlist: playlist, volume: 0.8 });
             initFullscreenPlayer(player, trackData);
@@ -524,6 +764,12 @@
             listrandom: { svg: '<svg viewBox="0 0 24 24"><path d="M14.83 13.41l1.42-1.41 2.75 2.75V13h2v5h-5v-2h1.59zM4 6h3.17l3 3 1.42-1.41L8.24 4H4zm0 12h4.24l9.51-9.5V11h2V4h-7v2h1.59L4 16.17z"/></svg>', title: '随机播放' }
         };
 
+        var VIEW_MODES = [
+            { id: 'both', className: 'fsp-view-both', label: '全', title: '显示模式：封面 + 歌词' },
+            { id: 'art', className: 'fsp-view-art', label: '封', title: '显示模式：仅封面' },
+            { id: 'lyrics', className: 'fsp-view-lyrics', label: '词', title: '显示模式：仅歌词' }
+        ];
+
         function initFullscreenPlayer(player, trackData) {
             var root = document.getElementById('fsp');
             var bg = document.getElementById('fsp-bg');
@@ -533,12 +779,22 @@
             var artistEl = document.getElementById('fsp-artist');
             var linesBox = document.getElementById('fsp-lyrics-lines');
             var lyricsView = document.getElementById('fsp-lyrics');
+            var lyricsFollowBtn = document.getElementById('fsp-lyrics-follow');
             var curEl = document.getElementById('fsp-cur');
             var durEl = document.getElementById('fsp-dur');
             var seek = document.getElementById('fsp-seek');
             var volRange = document.getElementById('fsp-vol-range');
             var playBtn = document.getElementById('fsp-play');
             var modeBtn = document.getElementById('fsp-mode');
+            var viewBtn = document.getElementById('fsp-view-btn');
+            var viewLabel = viewBtn.querySelector('.fsp-view-label');
+            var infoBtn = document.getElementById('fsp-info-btn');
+            var detailsPanel = document.getElementById('fsp-details');
+            var detailsCover = document.getElementById('fsp-details-cover');
+            var detailsTitle = document.getElementById('fsp-details-title');
+            var detailsArtist = document.getElementById('fsp-details-artist');
+            var detailsAlbum = document.getElementById('fsp-details-album');
+            var detailsLinks = document.getElementById('fsp-details-links');
             var plPanel = document.getElementById('fsp-playlist');
             var plItems = document.getElementById('fsp-playlist-items');
 
@@ -551,6 +807,44 @@
             var duration = 0;
             var seeking = false;
             var curIdx = 0;
+            var lyricsFollow = true;
+            var viewModeIdx = 0;
+            var scrollIdleTimer = null;
+
+            function searchUrl(service, query) {
+                if (!query) return '';
+                var q = encodeURIComponent(query);
+                if (service === 'wiki') return 'https://zh.wikipedia.org/wiki/Special:Search?search=' + q;
+                if (service === 'spotify') return 'https://open.spotify.com/search/' + q;
+                if (service === 'apple') return 'https://music.apple.com/search?term=' + q;
+                return '';
+            }
+
+            function setViewMode(idx) {
+                viewModeIdx = (idx + VIEW_MODES.length) % VIEW_MODES.length;
+                var mode = VIEW_MODES[viewModeIdx];
+                VIEW_MODES.forEach(function (m) { root.classList.remove(m.className); });
+                root.classList.add(mode.className);
+                viewLabel.textContent = mode.label;
+                viewBtn.title = mode.title;
+            }
+
+            function centerActiveLine(smooth) {
+                var el = lineEls[activeIdx];
+                if (!el || !lyricsView) return;
+                var target = el.offsetTop + el.clientHeight / 2 - lyricsView.clientHeight / 2;
+                if (smooth && lyricsView.scrollTo) {
+                    lyricsView.scrollTo({ top: target, behavior: 'smooth' });
+                } else {
+                    lyricsView.scrollTop = target;
+                }
+            }
+
+            function setLyricsFollow(on) {
+                lyricsFollow = on;
+                lyricsFollowBtn.classList.toggle('visible', !on);
+                if (on) centerActiveLine(true);
+            }
 
             // The cplayer facade exposes `nowplaypoint` (getter), not nowpoint().
             // Resolve the index robustly by matching the current source URL.
@@ -571,8 +865,51 @@
                 var el = lineEls[idx];
                 if (!el) return;
                 el.classList.add('fsp-active');
-                var offset = el.offsetTop + el.clientHeight / 2 - lyricsView.clientHeight / 2;
-                linesBox.style.transform = 'translateY(' + (-offset) + 'px)';
+                if (lyricsFollow) centerActiveLine(true);
+            }
+
+            function openDetails() {
+                var d = trackData[curIdx] || {};
+                detailsTitle.textContent = d.name || '';
+                detailsArtist.textContent = d.artist ? '歌手：' + d.artist : '';
+                detailsAlbum.textContent = d.album ? '专辑：' + d.album : '';
+                detailsArtist.style.display = d.artist ? '' : 'none';
+                detailsAlbum.style.display = d.album ? '' : 'none';
+                if (d.poster) detailsCover.src = d.poster;
+                detailsCover.style.display = d.poster ? '' : 'none';
+
+                detailsLinks.innerHTML = '';
+                function addLink(href, label) {
+                    if (!href) return;
+                    var a = document.createElement('a');
+                    a.href = href;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.textContent = label;
+                    detailsLinks.appendChild(a);
+                }
+
+                addLink(d.song_url, '歌曲页面');
+                addLink(d.artist_url, '歌手主页');
+                addLink(d.album_url, '专辑页面');
+                addLink(searchUrl('wiki', d.artist), '维基百科 · 歌手');
+                addLink(searchUrl('wiki', (d.name || '') + ' ' + (d.artist || '')), '维基百科 · 歌曲');
+                addLink(searchUrl('spotify', (d.name || '') + ' ' + (d.artist || '')), 'Spotify 搜索');
+                addLink(searchUrl('apple', (d.name || '') + ' ' + (d.artist || '')), 'Apple Music 搜索');
+
+                if (!detailsLinks.children.length) {
+                    var empty = document.createElement('span');
+                    empty.style.opacity = '0.55';
+                    empty.style.fontSize = '13px';
+                    empty.textContent = '暂无更多链接，可在歌单数据里补充 artist_url / album_url / song_url。';
+                    detailsLinks.appendChild(empty);
+                }
+
+                detailsPanel.classList.add('open');
+            }
+
+            function closeDetails() {
+                detailsPanel.classList.remove('open');
             }
 
             function syncLyrics(t) {
@@ -599,7 +936,7 @@
                 activeIdx = -1;
                 if (!lyrics.length) {
                     root.classList.add('no-lyrics');
-                    linesBox.style.transform = 'translateY(0)';
+                    lyricsView.scrollTop = 0;
                 } else {
                     root.classList.remove('no-lyrics');
                     lyrics.forEach(function (item, i) {
@@ -607,15 +944,18 @@
                         p.className = 'fsp-line';
                         p.textContent = item.text;
                         p.addEventListener('click', function () {
+                            setLyricsFollow(true);
                             if (player.setCurrentTime) player.setCurrentTime(item.time);
                             if (!player.isPlaying()) player.play();
                         });
                         linesBox.appendChild(p);
                         lineEls.push(p);
                     });
+                    setLyricsFollow(true);
                     setActive(0);
                 }
                 highlightPlaylist(idx);
+                closeDetails();
             }
 
             function updatePlayIcon(playing) {
@@ -725,19 +1065,35 @@
 
             document.getElementById('fsp-list-btn').addEventListener('click', function () { plPanel.classList.add('open'); });
             document.getElementById('fsp-pl-close').addEventListener('click', function () { plPanel.classList.remove('open'); });
+            viewBtn.addEventListener('click', function () { setViewMode(viewModeIdx + 1); });
+            infoBtn.addEventListener('click', openDetails);
+            document.getElementById('fsp-details-close').addEventListener('click', closeDetails);
+            detailsPanel.addEventListener('click', function (e) {
+                if (e.target === detailsPanel) closeDetails();
+            });
+            lyricsFollowBtn.addEventListener('click', function () { setLyricsFollow(true); });
+            lyricsView.addEventListener('wheel', function () { setLyricsFollow(false); }, { passive: true });
+            lyricsView.addEventListener('touchstart', function () { setLyricsFollow(false); }, { passive: true });
+            lyricsView.addEventListener('scroll', function () {
+                if (!lyricsFollow) {
+                    clearTimeout(scrollIdleTimer);
+                    scrollIdleTimer = setTimeout(function () {
+                        lyricsFollowBtn.classList.add('visible');
+                    }, 120);
+                }
+            }, { passive: true });
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') plPanel.classList.remove('open');
+                if (e.key === 'Escape') {
+                    plPanel.classList.remove('open');
+                    closeDetails();
+                }
                 if (e.code === 'Space' && e.target === document.body) {
                     e.preventDefault();
                     player.togglePlayState();
                 }
             });
             window.addEventListener('resize', function () {
-                if (lineEls[activeIdx]) {
-                    var el = lineEls[activeIdx];
-                    var offset = el.offsetTop + el.clientHeight / 2 - lyricsView.clientHeight / 2;
-                    linesBox.style.transform = 'translateY(' + (-offset) + 'px)';
-                }
+                if (lyricsFollow && lineEls[activeIdx]) centerActiveLine(false);
             });
 
             // Swallow the harmless "play() interrupted by a new load/pause"
@@ -748,6 +1104,7 @@
 
             // Initial render
             buildPlaylist();
+            setViewMode(0);
             updateMode();
             updatePlayIcon(player.isPlaying());
             volRange.value = player.audioElement ? player.audioElement.volume : 0.8;
