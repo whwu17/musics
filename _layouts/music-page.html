@@ -11,14 +11,18 @@
     <meta name="theme-color" content="#0b0b12" />
     <style>
         :root {
-            --accent: #a8c4ff;
-            --accent-2: #ff8ec4;
-            --glass-blur: 36px;
-            --glass-saturate: 165%;
-            --glass-border: rgba(255, 255, 255, 0.28);
-            --glass-highlight: rgba(255, 255, 255, 0.42);
-            --glass-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
-            --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.38), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+            --accent: #0a84ff;
+            --accent-2: #bf5af2;
+            --glass-blur: 52px;
+            --glass-saturate: 185%;
+            --glass-border: rgba(255, 255, 255, 0.22);
+            --glass-fill: rgba(255, 255, 255, 0.1);
+            --glass-fill-strong: rgba(255, 255, 255, 0.14);
+            --glass-highlight: rgba(255, 255, 255, 0.34);
+            --glass-shadow: 0 10px 38px rgba(0, 0, 0, 0.2);
+            --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.42);
+            --fsp-gutter: clamp(16px, 4.5vw, 32px);
+            --fsp-radius: 22px;
         }
 
         * { box-sizing: border-box; }
@@ -58,7 +62,7 @@
             inset: -12%;
             background-size: cover;
             background-position: center;
-            filter: blur(72px) saturate(180%) brightness(0.72);
+            filter: blur(80px) saturate(195%) brightness(0.78);
             transform: scale(1.12);
             transition: background-image 0.8s ease;
             z-index: 0;
@@ -69,9 +73,9 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(circle at 18% 22%, rgba(140, 168, 255, 0.22), transparent 42%),
-                radial-gradient(circle at 82% 68%, rgba(255, 111, 174, 0.18), transparent 40%),
-                radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.45), rgba(5, 5, 12, 0.72));
+                radial-gradient(circle at 20% 18%, rgba(10, 132, 255, 0.14), transparent 44%),
+                radial-gradient(circle at 80% 72%, rgba(191, 90, 242, 0.1), transparent 42%),
+                radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.32), rgba(8, 8, 14, 0.62));
         }
 
         #fsp-liquid {
@@ -85,43 +89,51 @@
         #fsp-liquid span {
             position: absolute;
             border-radius: 50%;
-            filter: blur(48px);
-            opacity: 0.55;
-            animation: liquid-drift 18s ease-in-out infinite;
+            filter: blur(56px);
+            opacity: 0.34;
+            animation: liquid-drift 22s ease-in-out infinite;
         }
 
         #fsp-liquid span:nth-child(1) {
-            width: 42vw;
-            height: 42vw;
-            top: -8%;
-            left: -6%;
-            background: rgba(140, 168, 255, 0.35);
+            width: 38vw;
+            height: 38vw;
+            top: -6%;
+            left: -4%;
+            background: rgba(10, 132, 255, 0.22);
         }
 
         #fsp-liquid span:nth-child(2) {
-            width: 36vw;
-            height: 36vw;
-            right: -8%;
-            bottom: 8%;
-            background: rgba(255, 111, 174, 0.28);
-            animation-delay: -6s;
-            animation-duration: 22s;
+            width: 32vw;
+            height: 32vw;
+            right: -6%;
+            bottom: 10%;
+            background: rgba(191, 90, 242, 0.16);
+            animation-delay: -7s;
+            animation-duration: 26s;
         }
 
         #fsp-liquid span:nth-child(3) {
-            width: 28vw;
-            height: 28vw;
-            left: 38%;
-            top: 52%;
-            background: rgba(120, 220, 255, 0.22);
-            animation-delay: -11s;
-            animation-duration: 26s;
+            width: 24vw;
+            height: 24vw;
+            left: 40%;
+            top: 54%;
+            background: rgba(100, 210, 255, 0.14);
+            animation-delay: -13s;
+            animation-duration: 30s;
         }
 
         @keyframes liquid-drift {
             0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(4vw, -3vh) scale(1.06); }
-            66% { transform: translate(-3vw, 2vh) scale(0.94); }
+            50% { transform: translate(2vw, -1.5vh) scale(1.03); }
+        }
+
+        #fsp-glass {
+            background: var(--glass-fill);
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.02) 32%, transparent 100%);
+            backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+            border: 0.5px solid var(--glass-border);
+            box-shadow: var(--glass-inset), var(--glass-shadow);
         }
 
         #fsp-main {
@@ -132,7 +144,7 @@
             align-items: center;
             justify-content: center;
             gap: clamp(24px, 6vw, 90px);
-            padding: 3vh clamp(20px, 5vw, 70px) 1vh;
+            padding: 3vh var(--fsp-gutter) 10px;
             min-height: 0;
         }
 
@@ -204,13 +216,8 @@
             flex-direction: column;
             min-height: 0;
             height: min(62vh, 520px);
-            padding: clamp(16px, 3vw, 24px);
-            border-radius: 28px;
-            background: linear-gradient(155deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 48%, rgba(255, 255, 255, 0.03));
-            backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-inset), var(--glass-shadow);
+            padding: clamp(16px, 3vw, 22px);
+            border-radius: var(--fsp-radius);
         }
 
         #fsp-title-row {
@@ -221,8 +228,9 @@
         }
 
         #fsp-title {
-            font-size: clamp(22px, 3.4vw, 40px);
-            font-weight: 700;
+            font-size: clamp(22px, 3.4vw, 36px);
+            font-weight: 600;
+            letter-spacing: -0.02em;
             margin: 0;
             flex: 1 1 auto;
             min-width: 0;
@@ -326,9 +334,9 @@
 
         .fsp-line.fsp-active {
             color: #fff;
-            font-weight: 700;
-            transform: scale(1.05);
-            text-shadow: 0 0 24px rgba(168, 196, 255, 0.65), 0 0 48px rgba(255, 142, 196, 0.25);
+            font-weight: 600;
+            transform: scale(1.03);
+            text-shadow: 0 1px 12px rgba(10, 132, 255, 0.35);
         }
 
         #fsp-lyrics-empty {
@@ -344,19 +352,15 @@
 
         #fsp.no-lyrics #fsp-lyrics-empty { display: block; }
 
-        /* Bottom control bar — liquid glass dock */
+        /* Bottom control bar — iOS 26 liquid glass dock */
         #fsp-bar {
             position: relative;
             z-index: 2;
             flex: 0 0 auto;
-            margin: 0 clamp(12px, 4vw, 32px) max(14px, env(safe-area-inset-bottom));
-            padding: 16px clamp(16px, 4vw, 28px) 14px;
-            border-radius: 28px;
-            background: linear-gradient(165deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 42%, rgba(255, 255, 255, 0.04) 100%);
-            backdrop-filter: blur(44px) saturate(var(--glass-saturate));
-            -webkit-backdrop-filter: blur(44px) saturate(var(--glass-saturate));
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-inset), var(--glass-shadow);
+            width: calc(100% - (var(--fsp-gutter) * 2));
+            margin: 0 auto max(12px, env(safe-area-inset-bottom));
+            padding: 14px clamp(14px, 3.5vw, 24px) 12px;
+            border-radius: var(--fsp-radius);
         }
 
         .fsp-progress-row {
@@ -421,23 +425,23 @@
             align-items: center;
             justify-content: center;
             flex: 0 0 auto;
-            background: linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: var(--glass-fill);
+            border: 0.5px solid rgba(255, 255, 255, 0.16);
             border-radius: 50%;
-            color: #fff;
+            color: rgba(255, 255, 255, 0.92);
             cursor: pointer;
             padding: 8px;
-            opacity: 0.92;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            opacity: 0.95;
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
             box-shadow: var(--glass-inset);
             transition: opacity 0.2s ease, transform 0.15s ease, background 0.2s ease;
         }
 
         .fsp-btn:hover {
             opacity: 1;
-            transform: scale(1.08);
-            background: linear-gradient(160deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08));
+            transform: scale(1.06);
+            background: var(--glass-fill-strong);
         }
         .fsp-btn svg { width: 26px; height: 26px; fill: currentColor; flex: 0 0 auto; }
 
@@ -450,20 +454,21 @@
             aspect-ratio: 1;
             padding: 0;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.42) 0%, rgba(168, 196, 255, 0.55) 38%, rgba(255, 142, 196, 0.42) 100%);
-            backdrop-filter: blur(18px) saturate(180%);
-            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 0.5px solid rgba(255, 255, 255, 0.38);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.14) 100%);
+            backdrop-filter: blur(24px) saturate(190%);
+            -webkit-backdrop-filter: blur(24px) saturate(190%);
             box-shadow:
-                inset 0 2px 14px rgba(255, 255, 255, 0.55),
-                inset 0 -6px 18px rgba(0, 0, 0, 0.12),
-                0 14px 36px rgba(140, 111, 255, 0.42);
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                0 8px 24px rgba(0, 0, 0, 0.18);
             opacity: 1;
         }
 
         #fsp-play:hover {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.5) 0%, rgba(168, 196, 255, 0.62) 38%, rgba(255, 142, 196, 0.5) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.18) 100%);
         }
+
+        #fsp-play svg { fill: rgba(255, 255, 255, 0.95); }
 
         #fsp-play svg { width: 30px; height: 30px; }
 
@@ -488,18 +493,13 @@
         /* Playlist panel */
         #fsp-playlist {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            bottom: 12px;
-            width: min(380px, 86vw);
+            top: var(--fsp-gutter);
+            right: var(--fsp-gutter);
+            bottom: var(--fsp-gutter);
+            width: min(380px, calc(100vw - (var(--fsp-gutter) * 2)));
             z-index: 3;
-            border-radius: 24px;
-            background: linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
-            backdrop-filter: blur(48px) saturate(var(--glass-saturate));
-            -webkit-backdrop-filter: blur(48px) saturate(var(--glass-saturate));
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-inset), -8px 0 48px rgba(0, 0, 0, 0.32);
-            transform: translateX(calc(100% + 16px));
+            border-radius: var(--fsp-radius);
+            transform: translateX(calc(100% + var(--fsp-gutter)));
             transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
             display: flex;
             flex-direction: column;
@@ -593,7 +593,7 @@
 
         #fsp.fsp-view-lyrics #fsp-art-wrap { display: none; }
         #fsp.fsp-view-lyrics #fsp-side {
-            max-width: min(760px, 92vw);
+            max-width: min(760px, calc(100vw - (var(--fsp-gutter) * 2)));
             text-align: center;
         }
 
@@ -622,15 +622,10 @@
         }
 
         #fsp-details-card {
-            width: min(420px, 92vw);
+            width: min(420px, calc(100vw - (var(--fsp-gutter) * 2)));
             max-height: min(78vh, 560px);
             overflow-y: auto;
-            border-radius: 24px;
-            background: linear-gradient(160deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
-            backdrop-filter: blur(48px) saturate(var(--glass-saturate));
-            -webkit-backdrop-filter: blur(48px) saturate(var(--glass-saturate));
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-inset), 0 28px 70px rgba(0, 0, 0, 0.35);
+            border-radius: var(--fsp-radius);
             padding: 22px 22px 18px;
         }
 
@@ -718,12 +713,37 @@
         }
 
         @media (max-width: 760px) {
-            #fsp-main { flex-direction: column; gap: 18px; padding-top: 4vh; }
+            #fsp-main {
+                flex-direction: column;
+                gap: 14px;
+                padding-top: 3vh;
+                padding-left: var(--fsp-gutter);
+                padding-right: var(--fsp-gutter);
+            }
+
             #fsp-art { width: clamp(150px, 30vh, 220px); height: clamp(150px, 30vh, 220px); }
-            #fsp-side { flex: 1 1 auto; width: 100%; height: auto; text-align: center; }
+
+            #fsp-side {
+                flex: 1 1 auto;
+                align-self: stretch;
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                min-height: 0;
+                text-align: center;
+            }
+
+            #fsp.fsp-view-lyrics #fsp-side { max-width: 100%; }
+
             .fsp-line { text-align: center; transform-origin: center; }
-            #fsp-bar { padding-left: 14px; padding-right: 14px; margin-left: 10px; margin-right: 10px; }
-            .fsp-controls { gap: 8px 14px; }
+
+            #fsp-bar {
+                width: calc(100% - (var(--fsp-gutter) * 2));
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .fsp-controls { gap: 8px 12px; }
             .fsp-vol { width: 68px; }
             #fsp-play {
                 width: 56px;
@@ -755,7 +775,7 @@
             <div id="fsp-art-wrap">
                 <div id="fsp-art"><img id="fsp-art-img" alt="cover" /></div>
             </div>
-            <div id="fsp-side">
+            <div id="fsp-side" class="fsp-glass">
                 <div id="fsp-title-row">
                     <h1 id="fsp-title"></h1>
                     <button id="fsp-info-btn" type="button" title="歌曲详情" aria-label="歌曲详情">i</button>
@@ -772,7 +792,7 @@
             </div>
         </div>
 
-        <div id="fsp-bar">
+        <div id="fsp-bar" class="fsp-glass">
             <div class="fsp-progress-row">
                 <span id="fsp-cur">00:00</span>
                 <input id="fsp-seek" class="fsp-range" type="range" min="0" max="1000" value="0" aria-label="进度" />
@@ -802,7 +822,7 @@
         </div>
 
         <div id="fsp-details" role="dialog" aria-modal="true" aria-labelledby="fsp-details-title">
-            <div id="fsp-details-card">
+            <div id="fsp-details-card" class="fsp-glass">
                 <div id="fsp-details-head">
                     <img id="fsp-details-cover" alt="" />
                     <div>
@@ -819,7 +839,7 @@
             </div>
         </div>
 
-        <div id="fsp-playlist">
+        <div id="fsp-playlist" class="fsp-glass">
             <div class="fsp-pl-head">
                 <span>播放列表</span>
                 <button id="fsp-pl-close" type="button" aria-label="关闭">&times;</button>
