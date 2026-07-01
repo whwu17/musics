@@ -8,144 +8,376 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <link rel="manifest" href="/manifest.json"> -->
-    <meta name="theme-color" content="#f8f8f8" />
+    <meta name="theme-color" content="#0b0b12" />
     <style>
-        /* Fullscreen line-by-line lyrics feature */
-        #fs-lyrics-toggle {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            z-index: 9998;
-            padding: 8px 16px;
-            font-size: 14px;
-            line-height: 1;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            border-radius: 999px;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            transition: background 0.2s ease, transform 0.2s ease;
+        :root {
+            --accent: #8ca8ff;
+            --accent-2: #ff6fae;
         }
 
-        #fs-lyrics-toggle:hover {
-            background: rgba(0, 0, 0, 0.75);
-            transform: translateY(-1px);
-        }
+        * { box-sizing: border-box; }
 
-        #fs-lyrics {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: #0b0b12;
             color: #fff;
-            background: radial-gradient(circle at 50% 30%, #2a2a45 0%, #12121c 60%, #050509 100%);
-            opacity: 1;
-            transition: opacity 0.35s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
         }
 
-        #fs-lyrics.fs-hidden {
+        /* Keep the (shadow-DOM) cplayer engine mounted but visually hidden;
+           audio keeps playing while hidden. */
+        #app {
+            position: fixed;
+            width: 1px;
+            height: 1px;
+            left: -9999px;
+            top: -9999px;
+            overflow: hidden;
             opacity: 0;
             pointer-events: none;
         }
 
-        #fs-lyrics-close {
+        #fsp {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #fsp-bg {
             position: absolute;
-            top: 14px;
-            right: 20px;
-            width: 44px;
-            height: 44px;
-            font-size: 30px;
-            line-height: 40px;
-            color: #fff;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s ease;
+            inset: -8%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(60px) saturate(140%) brightness(0.55);
+            transform: scale(1.1);
+            transition: background-image 0.6s ease;
+            z-index: 0;
         }
 
-        #fs-lyrics-close:hover {
-            opacity: 1;
+        #fsp-bg::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 20%, rgba(20, 20, 40, 0.35), rgba(5, 5, 12, 0.85));
         }
 
-        #fs-lyrics-song {
+        #fsp-main {
+            position: relative;
+            z-index: 1;
+            flex: 1 1 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(24px, 6vw, 90px);
+            padding: 3vh clamp(20px, 5vw, 70px) 1vh;
+            min-height: 0;
+        }
+
+        /* Album art / vinyl */
+        #fsp-art-wrap {
             flex: 0 0 auto;
-            margin: 42px 20px 6px;
-            text-align: center;
-            font-size: clamp(18px, 3vw, 26px);
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #fs-lyrics-song .fs-artist {
+        #fsp-art {
+            position: relative;
+            width: clamp(180px, 34vh, 360px);
+            height: clamp(180px, 34vh, 360px);
+            border-radius: 50%;
+            background: #111;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 0 10px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            animation: spin 18s linear infinite;
+            animation-play-state: paused;
+        }
+
+        #fsp-art.playing { animation-play-state: running; }
+
+        #fsp-art::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 22%;
+            height: 22%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: #0b0b12;
+            box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.15);
+        }
+
+        #fsp-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
-            margin-top: 6px;
-            font-size: 0.6em;
-            font-weight: 400;
-            opacity: 0.65;
         }
 
-        #fs-lyrics-viewport {
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Text + lyrics */
+        #fsp-side {
+            flex: 1 1 460px;
+            max-width: 640px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            height: min(62vh, 520px);
+        }
+
+        #fsp-title {
+            font-size: clamp(22px, 3.4vw, 40px);
+            font-weight: 700;
+            margin: 0 0 6px;
+        }
+
+        #fsp-artist {
+            font-size: clamp(14px, 1.6vw, 20px);
+            opacity: 0.7;
+            margin-bottom: 14px;
+        }
+
+        #fsp-lyrics {
             position: relative;
             flex: 1 1 auto;
-            width: 100%;
-            max-width: 900px;
             overflow: hidden;
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
         }
 
-        #fs-lyrics-lines {
+        #fsp-lyrics-lines {
             position: absolute;
             left: 0;
             right: 0;
             top: 0;
-            padding: 50vh 24px;
-            text-align: center;
+            padding: 42% 0;
             transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
             will-change: transform;
         }
 
-        .fs-line {
+        .fsp-line {
             margin: 0;
-            padding: 14px 0;
-            font-size: clamp(20px, 3.4vw, 34px);
-            line-height: 1.35;
-            color: rgba(255, 255, 255, 0.4);
-            transform: scale(0.92);
-            transition: color 0.35s ease, transform 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
-            filter: blur(0.4px);
+            padding: 11px 4px;
+            font-size: clamp(16px, 1.9vw, 24px);
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.42);
+            transform-origin: left center;
+            transform: scale(0.96);
+            transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
             cursor: pointer;
         }
 
-        .fs-line.fs-active {
+        .fsp-line.fsp-active {
             color: #fff;
             font-weight: 700;
-            transform: scale(1.06);
-            filter: none;
-            text-shadow: 0 0 22px rgba(140, 170, 255, 0.55);
+            transform: scale(1.05);
+            text-shadow: 0 0 20px rgba(140, 168, 255, 0.5);
         }
 
-        #fs-lyrics-empty {
+        #fsp-lyrics-empty {
             position: absolute;
             top: 50%;
             left: 0;
             right: 0;
             transform: translateY(-50%);
             text-align: center;
-            font-size: clamp(16px, 2.4vw, 22px);
-            opacity: 0.6;
+            opacity: 0.55;
             display: none;
         }
 
-        #fs-lyrics.fs-no-sync #fs-lyrics-empty {
-            display: block;
+        #fsp.no-lyrics #fsp-lyrics-empty { display: block; }
+
+        /* Bottom control bar */
+        #fsp-bar {
+            position: relative;
+            z-index: 2;
+            flex: 0 0 auto;
+            padding: 14px clamp(18px, 5vw, 60px) max(18px, env(safe-area-inset-bottom));
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .fsp-progress-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-variant-numeric: tabular-nums;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .fsp-range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            outline: none;
+            cursor: pointer;
+        }
+
+        #fsp-seek {
+            background-image: linear-gradient(var(--accent), var(--accent));
+            background-repeat: no-repeat;
+            background-size: 0% 100%;
+        }
+
+        .fsp-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(140, 168, 255, 0.8);
+        }
+
+        .fsp-range::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border: none;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .fsp-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(14px, 3vw, 34px);
+            margin-top: 12px;
+        }
+
+        .fsp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            opacity: 0.85;
+            transition: opacity 0.2s ease, transform 0.15s ease;
+        }
+
+        .fsp-btn:hover { opacity: 1; transform: scale(1.08); }
+        .fsp-btn svg { width: 26px; height: 26px; fill: currentColor; }
+
+        #fsp-play {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 8px 26px rgba(140, 111, 255, 0.5);
+            opacity: 1;
+        }
+
+        #fsp-play svg { width: 30px; height: 30px; }
+
+        .fsp-vol {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: clamp(90px, 12vw, 150px);
+        }
+
+        .fsp-vol svg { width: 22px; height: 22px; fill: #fff; opacity: 0.85; flex: 0 0 auto; }
+        #fsp-vol-range { height: 5px; }
+
+        .fsp-mode-label {
+            position: absolute;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* Playlist panel */
+        #fsp-playlist {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: min(380px, 86vw);
+            z-index: 3;
+            background: rgba(12, 12, 20, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: -14px 0 40px rgba(0, 0, 0, 0.5);
+            transform: translateX(100%);
+            transition: transform 0.35s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #fsp-playlist.open { transform: translateX(0); }
+
+        .fsp-pl-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 12px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        #fsp-pl-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 26px;
+            line-height: 1;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        #fsp-pl-close:hover { opacity: 1; }
+
+        #fsp-playlist-items {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 0 12px 20px;
+        }
+
+        .fsp-pl-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .fsp-pl-item:hover { background: rgba(255, 255, 255, 0.08); }
+        .fsp-pl-item.active { background: rgba(140, 168, 255, 0.18); }
+
+        .fsp-pl-item img {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex: 0 0 auto;
+            background: #222;
+        }
+
+        .fsp-pl-meta { min-width: 0; }
+        .fsp-pl-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fsp-pl-artist { font-size: 12px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fsp-pl-item.active .fsp-pl-name { color: var(--accent); }
+
+        @media (max-width: 760px) {
+            #fsp-main { flex-direction: column; gap: 18px; padding-top: 4vh; }
+            #fsp-art { width: clamp(150px, 30vh, 220px); height: clamp(150px, 30vh, 220px); }
+            #fsp-side { flex: 1 1 auto; width: 100%; height: auto; text-align: center; }
+            .fsp-line { text-align: center; transform-origin: center; }
         }
     </style>
 </head>
@@ -155,14 +387,55 @@
         <div id="app"></div>
     </div>
 
-    <button id="fs-lyrics-toggle" type="button" title="全屏歌词">全屏歌词</button>
-    <div id="fs-lyrics" class="fs-hidden" aria-hidden="true">
-        <button id="fs-lyrics-close" type="button" aria-label="关闭全屏歌词">&times;</button>
-        <div id="fs-lyrics-song"></div>
-        <div id="fs-lyrics-viewport">
-            <div id="fs-lyrics-lines"></div>
+    <div id="fsp">
+        <div id="fsp-bg"></div>
+
+        <div id="fsp-main">
+            <div id="fsp-art-wrap">
+                <div id="fsp-art"><img id="fsp-art-img" alt="cover" /></div>
+            </div>
+            <div id="fsp-side">
+                <h1 id="fsp-title"></h1>
+                <div id="fsp-artist"></div>
+                <div id="fsp-lyrics">
+                    <div id="fsp-lyrics-lines"></div>
+                    <div id="fsp-lyrics-empty">暂无同步歌词</div>
+                </div>
+            </div>
         </div>
-        <div id="fs-lyrics-empty">当前歌曲暂无同步歌词</div>
+
+        <div id="fsp-bar">
+            <div class="fsp-progress-row">
+                <span id="fsp-cur">00:00</span>
+                <input id="fsp-seek" class="fsp-range" type="range" min="0" max="1000" value="0" aria-label="进度" />
+                <span id="fsp-dur">00:00</span>
+            </div>
+            <div class="fsp-controls">
+                <button id="fsp-mode" class="fsp-btn" type="button" title="播放模式"></button>
+                <button id="fsp-prev" class="fsp-btn" type="button" title="上一首">
+                    <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </button>
+                <button id="fsp-play" class="fsp-btn" type="button" title="播放/暂停"></button>
+                <button id="fsp-next" class="fsp-btn" type="button" title="下一首">
+                    <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+                </button>
+                <div class="fsp-vol">
+                    <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12z"/></svg>
+                    <input id="fsp-vol-range" class="fsp-range" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="音量" />
+                </div>
+                <button id="fsp-list-btn" class="fsp-btn" type="button" title="播放列表">
+                    <svg viewBox="0 0 24 24"><path d="M3 6h13v2H3zm0 5h13v2H3zm0 5h9v2H3zm15-9l4 3-4 3z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="fsp-playlist">
+            <div class="fsp-pl-head">
+                <span>播放列表</span>
+                <button id="fsp-pl-close" type="button" aria-label="关闭">&times;</button>
+            </div>
+            <div id="fsp-playlist-items"></div>
+        </div>
     </div>
 
     <script src="/assets/js/cplayer.js"></script>
@@ -175,7 +448,6 @@
         let promises = [];
         {% for details in page.playlist %}
         var tmp = (function () {
-            // Use per-track locals so async callbacks never clobber each other's lyrics.
             var _lyric = '';
             var _sublyric = '';
             return new Promise(function (resolve) {
@@ -197,7 +469,6 @@
             }).then(function () {
                 let songname = '{{ details.song }}'.split('/');
                 songname = songname[songname.length - 1];
-
                 playlist.push({
                     src: baseurl + encodeURI(encodeURI('{{ details.song }}')),
                     poster: baseurl + '{{ details.poster }}',
@@ -210,21 +481,19 @@
         })();
         promises.push(tmp);
         {% endfor %}
-        Promise.all(promises).then((res) => {
-            // Snapshot raw lyrics/metadata before cplayer parses/mutates the items.
-            var lyricData = playlist.map(function (it) {
-                return { name: it.name, artist: it.artist, lyric: it.lyric };
+        Promise.all(promises).then(function () {
+            var trackData = playlist.map(function (it) {
+                return { name: it.name, artist: it.artist, poster: it.poster, lyric: it.lyric };
             });
-            let player = new cplayer({ element: document.getElementById('app'), playlist: playlist });
-            initFullscreenLyrics(player, lyricData);
-        }).catch((err) => {
+            var player = new cplayer({ element: document.getElementById('app'), playlist: playlist, volume: 0.8 });
+            initFullscreenPlayer(player, trackData);
+        }).catch(function (err) {
             console.log("playlist init error", err);
         });
 
-        // ---- Fullscreen line-by-line lyrics ----
         function parseLrc(raw) {
-            var lines = [];
-            if (!raw) return lines;
+            var out = [];
+            if (!raw) return out;
             var tag = /\[(\d{1,2}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
             raw.split(/\r?\n/).forEach(function (line) {
                 tag.lastIndex = 0;
@@ -236,118 +505,244 @@
                 }
                 var text = line.replace(tag, '').trim();
                 if (!times.length || !text) return;
-                times.forEach(function (t) { lines.push({ time: t, text: text }); });
+                times.forEach(function (t) { out.push({ time: t, text: text }); });
             });
-            lines.sort(function (a, b) { return a.time - b.time; });
-            return lines;
+            out.sort(function (a, b) { return a.time - b.time; });
+            return out;
         }
 
-        function initFullscreenLyrics(player, lyricData) {
-            var overlay = document.getElementById('fs-lyrics');
-            var linesBox = document.getElementById('fs-lyrics-lines');
-            var viewport = document.getElementById('fs-lyrics-viewport');
-            var songBox = document.getElementById('fs-lyrics-song');
-            var toggleBtn = document.getElementById('fs-lyrics-toggle');
-            var closeBtn = document.getElementById('fs-lyrics-close');
+        function fmtTime(sec) {
+            if (!isFinite(sec) || sec < 0) sec = 0;
+            sec = Math.floor(sec);
+            var m = Math.floor(sec / 60), s = sec % 60;
+            return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        }
 
+        var MODE_ICONS = {
+            listloop: { svg: '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>', title: '列表循环' },
+            singlecycle: { svg: '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg><span class="fsp-mode-label">1</span>', title: '单曲循环' },
+            listrandom: { svg: '<svg viewBox="0 0 24 24"><path d="M14.83 13.41l1.42-1.41 2.75 2.75V13h2v5h-5v-2h1.59zM4 6h3.17l3 3 1.42-1.41L8.24 4H4zm0 12h4.24l9.51-9.5V11h2V4h-7v2h1.59L4 16.17z"/></svg>', title: '随机播放' }
+        };
+
+        function initFullscreenPlayer(player, trackData) {
+            var root = document.getElementById('fsp');
+            var bg = document.getElementById('fsp-bg');
+            var artBox = document.getElementById('fsp-art');
+            var artImg = document.getElementById('fsp-art-img');
+            var titleEl = document.getElementById('fsp-title');
+            var artistEl = document.getElementById('fsp-artist');
+            var linesBox = document.getElementById('fsp-lyrics-lines');
+            var lyricsView = document.getElementById('fsp-lyrics');
+            var curEl = document.getElementById('fsp-cur');
+            var durEl = document.getElementById('fsp-dur');
+            var seek = document.getElementById('fsp-seek');
+            var volRange = document.getElementById('fsp-vol-range');
+            var playBtn = document.getElementById('fsp-play');
+            var modeBtn = document.getElementById('fsp-mode');
+            var plPanel = document.getElementById('fsp-playlist');
+            var plItems = document.getElementById('fsp-playlist-items');
+
+            var PLAY_SVG = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            var PAUSE_SVG = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+
+            var lyrics = [];
             var lineEls = [];
-            var parsed = [];
             var activeIdx = -1;
+            var duration = 0;
+            var seeking = false;
 
             function currentIndex() {
                 try { return player.nowpoint(); } catch (e) { return 0; }
             }
 
-            function renderTrack() {
-                var idx = currentIndex();
-                var data = lyricData[idx] || {};
-                songBox.innerHTML = '';
-                var title = document.createTextNode(data.name || '');
-                songBox.appendChild(title);
-                if (data.artist) {
-                    var a = document.createElement('span');
-                    a.className = 'fs-artist';
-                    a.textContent = data.artist;
-                    songBox.appendChild(a);
-                }
-
-                parsed = parseLrc(data.lyric);
-                linesBox.innerHTML = '';
-                lineEls = [];
-                activeIdx = -1;
-
-                if (!parsed.length) {
-                    overlay.classList.add('fs-no-sync');
-                    linesBox.style.transform = 'translateY(0)';
-                    return;
-                }
-                overlay.classList.remove('fs-no-sync');
-                parsed.forEach(function (item, i) {
-                    var p = document.createElement('p');
-                    p.className = 'fs-line';
-                    p.textContent = item.text;
-                    p.addEventListener('click', function () {
-                        if (player.setCurrentTime) { player.setCurrentTime(item.time); }
-                        if (!player.isPlaying()) { player.play(); }
-                        setActive(i, true);
-                    });
-                    linesBox.appendChild(p);
-                    lineEls.push(p);
-                });
-                setActive(0, false);
-            }
-
-            function setActive(idx, force) {
-                if (idx === activeIdx && !force) return;
-                if (lineEls[activeIdx]) lineEls[activeIdx].classList.remove('fs-active');
+            function setActive(idx) {
+                if (idx === activeIdx) return;
+                if (lineEls[activeIdx]) lineEls[activeIdx].classList.remove('fsp-active');
                 activeIdx = idx;
                 var el = lineEls[idx];
                 if (!el) return;
-                el.classList.add('fs-active');
-                var offset = el.offsetTop + el.clientHeight / 2 - viewport.clientHeight / 2;
+                el.classList.add('fsp-active');
+                var offset = el.offsetTop + el.clientHeight / 2 - lyricsView.clientHeight / 2;
                 linesBox.style.transform = 'translateY(' + (-offset) + 'px)';
             }
 
-            function syncToTime(t) {
-                if (!parsed.length) return;
+            function syncLyrics(t) {
+                if (!lyrics.length) return;
                 var idx = 0;
-                for (var i = 0; i < parsed.length; i++) {
-                    if (parsed[i].time <= t + 0.15) { idx = i; } else { break; }
+                for (var i = 0; i < lyrics.length; i++) {
+                    if (lyrics[i].time <= t + 0.15) { idx = i; } else { break; }
                 }
-                setActive(idx, false);
+                setActive(idx);
             }
 
-            player.on('timeupdate', function (t) {
-                if (!overlay.classList.contains('fs-hidden')) { syncToTime(t); }
+            function loadTrack() {
+                var idx = currentIndex();
+                var d = trackData[idx] || {};
+                titleEl.textContent = d.name || '';
+                artistEl.textContent = d.artist || '';
+                if (d.poster) {
+                    artImg.src = d.poster;
+                    bg.style.backgroundImage = 'url("' + d.poster + '")';
+                }
+                lyrics = parseLrc(d.lyric);
+                linesBox.innerHTML = '';
+                lineEls = [];
+                activeIdx = -1;
+                if (!lyrics.length) {
+                    root.classList.add('no-lyrics');
+                    linesBox.style.transform = 'translateY(0)';
+                } else {
+                    root.classList.remove('no-lyrics');
+                    lyrics.forEach(function (item, i) {
+                        var p = document.createElement('p');
+                        p.className = 'fsp-line';
+                        p.textContent = item.text;
+                        p.addEventListener('click', function () {
+                            if (player.setCurrentTime) player.setCurrentTime(item.time);
+                            if (!player.isPlaying()) player.play();
+                        });
+                        linesBox.appendChild(p);
+                        lineEls.push(p);
+                    });
+                    setActive(0);
+                }
+                highlightPlaylist(idx);
+            }
+
+            function updatePlayIcon(playing) {
+                playBtn.innerHTML = playing ? PAUSE_SVG : PLAY_SVG;
+                if (playing) { artBox.classList.add('playing'); }
+                else { artBox.classList.remove('playing'); }
+            }
+
+            function updateMode() {
+                var name = player.mode || (player.getMode && player.getMode()) || 'listloop';
+                var info = MODE_ICONS[name] || MODE_ICONS.listloop;
+                modeBtn.innerHTML = info.svg;
+                modeBtn.title = info.title;
+            }
+
+            function buildPlaylist() {
+                plItems.innerHTML = '';
+                trackData.forEach(function (d, i) {
+                    var item = document.createElement('div');
+                    item.className = 'fsp-pl-item';
+                    item.dataset.idx = i;
+                    var img = document.createElement('img');
+                    if (d.poster) img.src = d.poster;
+                    var meta = document.createElement('div');
+                    meta.className = 'fsp-pl-meta';
+                    var nm = document.createElement('div');
+                    nm.className = 'fsp-pl-name';
+                    nm.textContent = d.name || ('曲目 ' + (i + 1));
+                    var ar = document.createElement('div');
+                    ar.className = 'fsp-pl-artist';
+                    ar.textContent = d.artist || '';
+                    meta.appendChild(nm);
+                    meta.appendChild(ar);
+                    item.appendChild(img);
+                    item.appendChild(meta);
+                    item.addEventListener('click', function () {
+                        // openAudio() auto-resumes when already playing; only
+                        // trigger play() ourselves if the player was paused,
+                        // otherwise a second play() during the load throws AbortError.
+                        var wasPlaying = player.isPlaying();
+                        player.to(i);
+                        if (!wasPlaying) player.play();
+                    });
+                    plItems.appendChild(item);
+                });
+            }
+
+            function highlightPlaylist(idx) {
+                var items = plItems.children;
+                for (var i = 0; i < items.length; i++) {
+                    items[i].classList.toggle('active', i === idx);
+                }
+            }
+
+            // Events
+            player.on('timeupdate', function (t, dur) {
+                if (dur) duration = dur;
+                curEl.textContent = fmtTime(t);
+                durEl.textContent = fmtTime(duration);
+                if (!seeking && duration) {
+                    var ratio = Math.min(1, t / duration);
+                    seek.value = Math.round(ratio * 1000);
+                    seek.style.backgroundSize = (ratio * 100) + '% 100%';
+                }
+                syncLyrics(t);
             });
             player.on('openaudio', function () {
-                renderTrack();
-                if (player.audioElement) { syncToTime(player.audioElement.currentTime || 0); }
+                duration = 0;
+                seek.value = 0;
+                seek.style.backgroundSize = '0% 100%';
+                loadTrack();
+                if (player.audioElement) syncLyrics(player.audioElement.currentTime || 0);
+            });
+            player.on('playstatechange', function (paused) { updatePlayIcon(!paused); });
+            player.on('play', function () { updatePlayIcon(true); });
+            player.on('pause', function () { updatePlayIcon(false); });
+            player.on('playmodechange', updateMode);
+            player.on('volumechange', function () {
+                var v = player.audioElement ? player.audioElement.volume : 0.8;
+                if (!volDragging) volRange.value = v;
             });
 
-            function open() {
-                renderTrack();
-                overlay.classList.remove('fs-hidden');
-                overlay.setAttribute('aria-hidden', 'false');
-                if (player.audioElement) { syncToTime(player.audioElement.currentTime || 0); }
-            }
-            function close() {
-                overlay.classList.add('fs-hidden');
-                overlay.setAttribute('aria-hidden', 'true');
-            }
+            // Controls
+            playBtn.addEventListener('click', function () { player.togglePlayState(); });
+            document.getElementById('fsp-prev').addEventListener('click', function () { player.prev(); });
+            document.getElementById('fsp-next').addEventListener('click', function () { player.next(); });
+            modeBtn.addEventListener('click', function () { player.toggleMode(); updateMode(); });
 
-            toggleBtn.addEventListener('click', open);
-            closeBtn.addEventListener('click', close);
+            seek.addEventListener('input', function () {
+                seeking = true;
+                var ratio = seek.value / 1000;
+                seek.style.backgroundSize = (ratio * 100) + '% 100%';
+                if (duration) curEl.textContent = fmtTime(ratio * duration);
+            });
+            seek.addEventListener('change', function () {
+                var ratio = seek.value / 1000;
+                if (duration && player.setCurrentTime) player.setCurrentTime(ratio * duration);
+                seeking = false;
+            });
+
+            var volDragging = false;
+            volRange.addEventListener('input', function () {
+                volDragging = true;
+                player.setVolume(parseFloat(volRange.value));
+            });
+            volRange.addEventListener('change', function () { volDragging = false; });
+
+            document.getElementById('fsp-list-btn').addEventListener('click', function () { plPanel.classList.add('open'); });
+            document.getElementById('fsp-pl-close').addEventListener('click', function () { plPanel.classList.remove('open'); });
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && !overlay.classList.contains('fs-hidden')) { close(); }
+                if (e.key === 'Escape') plPanel.classList.remove('open');
+                if (e.code === 'Space' && e.target === document.body) {
+                    e.preventDefault();
+                    player.togglePlayState();
+                }
             });
             window.addEventListener('resize', function () {
-                if (!overlay.classList.contains('fs-hidden') && lineEls[activeIdx]) {
-                    setActive(activeIdx, true);
+                if (lineEls[activeIdx]) {
+                    var el = lineEls[activeIdx];
+                    var offset = el.offsetTop + el.clientHeight / 2 - lyricsView.clientHeight / 2;
+                    linesBox.style.transform = 'translateY(' + (-offset) + 'px)';
                 }
             });
 
-            renderTrack();
+            // Swallow the harmless "play() interrupted by a new load/pause"
+            // AbortError that fires when rapidly switching tracks.
+            window.addEventListener('unhandledrejection', function (e) {
+                if (e.reason && e.reason.name === 'AbortError') e.preventDefault();
+            });
+
+            // Initial render
+            buildPlaylist();
+            updateMode();
+            updatePlayIcon(player.isPlaying());
+            volRange.value = player.audioElement ? player.audioElement.volume : 0.8;
+            loadTrack();
         }
     </script>
 </body>
