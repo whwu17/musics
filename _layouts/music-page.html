@@ -146,6 +146,16 @@
             gap: clamp(24px, 6vw, 90px);
             padding: 3vh var(--fsp-gutter) 10px;
             min-height: 0;
+            height: 100%;
+        }
+
+        /* Main stage: playlist lives here, above the control bar */
+        #fsp-stage {
+            position: relative;
+            z-index: 1;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
         }
 
         /* Album art / vinyl */
@@ -355,13 +365,49 @@
         /* Bottom control bar — iOS 26 liquid glass dock */
         #fsp-bar {
             position: relative;
-            z-index: 2;
+            z-index: 4;
             flex: 0 0 auto;
             width: calc(100% - (var(--fsp-gutter) * 2));
             margin: 0 auto max(12px, env(safe-area-inset-bottom));
             padding: 14px clamp(14px, 3.5vw, 24px) 12px;
             border-radius: var(--fsp-radius);
         }
+
+        #fsp-pl-backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: rgba(8, 8, 14, 0.38);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.32s ease, visibility 0.32s ease;
+        }
+
+        #fsp-pl-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Playlist panel */
+        #fsp-playlist {
+            position: absolute;
+            top: var(--fsp-gutter);
+            right: var(--fsp-gutter);
+            bottom: var(--fsp-gutter);
+            width: min(380px, calc(100% - (var(--fsp-gutter) * 2)));
+            z-index: 3;
+            border-radius: var(--fsp-radius);
+            transform: translateX(calc(100% + var(--fsp-gutter)));
+            transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #fsp-playlist.open { transform: translateX(0); }
 
         .fsp-progress-row {
             display: flex;
@@ -489,23 +535,6 @@
             font-size: 10px;
             font-weight: 700;
         }
-
-        /* Playlist panel */
-        #fsp-playlist {
-            position: absolute;
-            top: var(--fsp-gutter);
-            right: var(--fsp-gutter);
-            bottom: var(--fsp-gutter);
-            width: min(380px, calc(100vw - (var(--fsp-gutter) * 2)));
-            z-index: 3;
-            border-radius: var(--fsp-radius);
-            transform: translateX(calc(100% + var(--fsp-gutter)));
-            transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        #fsp-playlist.open { transform: translateX(0); }
 
         .fsp-pl-head {
             display: flex;
@@ -743,6 +772,18 @@
                 padding-right: 14px;
             }
 
+            #fsp-playlist {
+                top: auto;
+                left: var(--fsp-gutter);
+                right: var(--fsp-gutter);
+                bottom: var(--fsp-gutter);
+                width: auto;
+                max-height: min(72%, 480px);
+                transform: translateY(calc(100% + var(--fsp-gutter)));
+            }
+
+            #fsp-playlist.open { transform: translateY(0); }
+
             .fsp-controls { gap: 8px 12px; }
             .fsp-vol { width: 68px; }
             #fsp-play {
@@ -771,24 +812,35 @@
         <div id="fsp-bg"></div>
         <div id="fsp-liquid" aria-hidden="true"><span></span><span></span><span></span></div>
 
-        <div id="fsp-main">
-            <div id="fsp-art-wrap">
-                <div id="fsp-art"><img id="fsp-art-img" alt="cover" /></div>
+        <div id="fsp-stage">
+            <div id="fsp-main">
+                <div id="fsp-art-wrap">
+                    <div id="fsp-art"><img id="fsp-art-img" alt="cover" /></div>
+                </div>
+                <div id="fsp-side" class="fsp-glass">
+                    <div id="fsp-title-row">
+                        <h1 id="fsp-title"></h1>
+                        <button id="fsp-info-btn" type="button" title="歌曲详情" aria-label="歌曲详情">i</button>
+                    </div>
+                    <div id="fsp-artist"></div>
+                    <div id="fsp-lyrics-toolbar">
+                        <span id="fsp-lyrics-hint">滚动浏览歌词，点击一句可跳转播放</span>
+                        <button id="fsp-lyrics-follow" type="button">回到当前句</button>
+                    </div>
+                    <div id="fsp-lyrics">
+                        <div id="fsp-lyrics-lines"></div>
+                        <div id="fsp-lyrics-empty">暂无同步歌词</div>
+                    </div>
+                </div>
             </div>
-            <div id="fsp-side" class="fsp-glass">
-                <div id="fsp-title-row">
-                    <h1 id="fsp-title"></h1>
-                    <button id="fsp-info-btn" type="button" title="歌曲详情" aria-label="歌曲详情">i</button>
+
+            <div id="fsp-pl-backdrop" aria-hidden="true"></div>
+            <div id="fsp-playlist" class="fsp-glass">
+                <div class="fsp-pl-head">
+                    <span>播放列表</span>
+                    <button id="fsp-pl-close" type="button" aria-label="关闭">&times;</button>
                 </div>
-                <div id="fsp-artist"></div>
-                <div id="fsp-lyrics-toolbar">
-                    <span id="fsp-lyrics-hint">滚动浏览歌词，点击一句可跳转播放</span>
-                    <button id="fsp-lyrics-follow" type="button">回到当前句</button>
-                </div>
-                <div id="fsp-lyrics">
-                    <div id="fsp-lyrics-lines"></div>
-                    <div id="fsp-lyrics-empty">暂无同步歌词</div>
-                </div>
+                <div id="fsp-playlist-items"></div>
             </div>
         </div>
 
@@ -839,13 +891,6 @@
             </div>
         </div>
 
-        <div id="fsp-playlist" class="fsp-glass">
-            <div class="fsp-pl-head">
-                <span>播放列表</span>
-                <button id="fsp-pl-close" type="button" aria-label="关闭">&times;</button>
-            </div>
-            <div id="fsp-playlist-items"></div>
-        </div>
     </div>
 
     <script src="{{ '/assets/js/cplayer.js' | relative_url }}"></script>
@@ -980,6 +1025,7 @@
             var detailsAlbum = document.getElementById('fsp-details-album');
             var detailsLinks = document.getElementById('fsp-details-links');
             var plPanel = document.getElementById('fsp-playlist');
+            var plBackdrop = document.getElementById('fsp-pl-backdrop');
             var plItems = document.getElementById('fsp-playlist-items');
 
             var PLAY_SVG = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
@@ -1176,15 +1222,19 @@
                     item.appendChild(img);
                     item.appendChild(meta);
                     item.addEventListener('click', function () {
-                        // openAudio() auto-resumes when already playing; only
-                        // trigger play() ourselves if the player was paused,
-                        // otherwise a second play() during the load throws AbortError.
                         var wasPlaying = player.isPlaying();
                         player.to(i);
                         if (!wasPlaying) player.play();
+                        setPlaylistOpen(false);
                     });
                     plItems.appendChild(item);
                 });
+            }
+
+            function setPlaylistOpen(open) {
+                plPanel.classList.toggle('open', open);
+                plBackdrop.classList.toggle('open', open);
+                plBackdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
             }
 
             function highlightPlaylist(idx) {
@@ -1247,8 +1297,9 @@
             });
             volRange.addEventListener('change', function () { volDragging = false; });
 
-            document.getElementById('fsp-list-btn').addEventListener('click', function () { plPanel.classList.add('open'); });
-            document.getElementById('fsp-pl-close').addEventListener('click', function () { plPanel.classList.remove('open'); });
+            document.getElementById('fsp-list-btn').addEventListener('click', function () { setPlaylistOpen(true); });
+            document.getElementById('fsp-pl-close').addEventListener('click', function () { setPlaylistOpen(false); });
+            plBackdrop.addEventListener('click', function () { setPlaylistOpen(false); });
             viewBtn.addEventListener('click', function () { setViewMode(viewModeIdx + 1); });
             infoBtn.addEventListener('click', openDetails);
             document.getElementById('fsp-details-close').addEventListener('click', closeDetails);
@@ -1268,7 +1319,7 @@
             }, { passive: true });
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
-                    plPanel.classList.remove('open');
+                    setPlaylistOpen(false);
                     closeDetails();
                 }
                 if (e.code === 'Space' && e.target === document.body) {
