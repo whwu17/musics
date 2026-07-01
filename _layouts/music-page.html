@@ -65,6 +65,62 @@
             background: radial-gradient(circle at 50% 20%, rgba(20, 20, 40, 0.35), rgba(5, 5, 12, 0.85));
         }
 
+        /* Top toolbar: details + view-mode toggle */
+        #fsp-toolbar {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fsp-tool-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            font-size: 13px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 999px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: background 0.2s ease;
+        }
+
+        .fsp-tool-btn:hover { background: rgba(0, 0, 0, 0.7); }
+
+        .fsp-seg {
+            display: inline-flex;
+            padding: 3px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 999px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .fsp-seg button {
+            padding: 5px 12px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            background: transparent;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .fsp-seg button.active {
+            color: #0b0b12;
+            background: #fff;
+            font-weight: 600;
+        }
+
         #fsp-main {
             position: relative;
             z-index: 1;
@@ -95,6 +151,7 @@
             overflow: hidden;
             animation: spin 18s linear infinite;
             animation-play-state: paused;
+            transition: width 0.35s ease, height 0.35s ease;
         }
 
         #fsp-art.playing { animation-play-state: running; }
@@ -146,32 +203,34 @@
         #fsp-lyrics {
             position: relative;
             flex: 1 1 auto;
-            overflow: hidden;
+            overflow-y: auto;
+            scroll-behavior: smooth;
             -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
             mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
         }
 
+        #fsp-lyrics::-webkit-scrollbar { width: 6px; }
+        #fsp-lyrics::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 999px; }
+        #fsp-lyrics::-webkit-scrollbar-track { background: transparent; }
+
         #fsp-lyrics-lines {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            padding: 42% 0;
-            transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
-            will-change: transform;
+            padding: 42vh 4px;
         }
 
         .fsp-line {
             margin: 0;
-            padding: 11px 4px;
+            padding: 11px 8px;
+            border-radius: 8px;
             font-size: clamp(16px, 1.9vw, 24px);
             line-height: 1.4;
             color: rgba(255, 255, 255, 0.42);
             transform-origin: left center;
             transform: scale(0.96);
-            transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+            transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease, background 0.2s ease;
             cursor: pointer;
         }
+
+        .fsp-line:hover { color: rgba(255, 255, 255, 0.8); background: rgba(255, 255, 255, 0.06); }
 
         .fsp-line.fsp-active {
             color: #fff;
@@ -192,6 +251,14 @@
         }
 
         #fsp.no-lyrics #fsp-lyrics-empty { display: block; }
+
+        /* View modes */
+        #fsp.view-art #fsp-side { display: none; }
+        #fsp.view-art #fsp-art { width: clamp(240px, 56vh, 540px); height: clamp(240px, 56vh, 540px); }
+        #fsp.view-lyrics #fsp-art-wrap { display: none; }
+        #fsp.view-lyrics #fsp-side { flex-basis: auto; max-width: 900px; height: 74vh; text-align: center; }
+        #fsp.view-lyrics .fsp-line { transform-origin: center; }
+        #fsp.view-lyrics #fsp-lyrics-lines { padding: 46vh 4px; }
 
         /* Bottom control bar */
         #fsp-bar {
@@ -299,15 +366,15 @@
             font-weight: 700;
         }
 
-        /* Playlist panel */
-        #fsp-playlist {
+        /* Slide-in panels (playlist + details) */
+        .fsp-panel {
             position: absolute;
             top: 0;
             right: 0;
             bottom: 0;
-            width: min(380px, 86vw);
-            z-index: 3;
-            background: rgba(12, 12, 20, 0.92);
+            width: min(400px, 88vw);
+            z-index: 6;
+            background: rgba(12, 12, 20, 0.94);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             box-shadow: -14px 0 40px rgba(0, 0, 0, 0.5);
@@ -317,9 +384,9 @@
             flex-direction: column;
         }
 
-        #fsp-playlist.open { transform: translateX(0); }
+        .fsp-panel.open { transform: translateX(0); }
 
-        .fsp-pl-head {
+        .fsp-panel-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -328,7 +395,7 @@
             font-weight: 700;
         }
 
-        #fsp-pl-close {
+        .fsp-panel-close {
             background: none;
             border: none;
             color: #fff;
@@ -338,7 +405,7 @@
             opacity: 0.7;
         }
 
-        #fsp-pl-close:hover { opacity: 1; }
+        .fsp-panel-close:hover { opacity: 1; }
 
         #fsp-playlist-items {
             flex: 1 1 auto;
@@ -373,11 +440,58 @@
         .fsp-pl-artist { font-size: 12px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .fsp-pl-item.active .fsp-pl-name { color: var(--accent); }
 
+        /* Details panel */
+        #fsp-info-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 4px 22px 24px;
+        }
+
+        #fsp-info-cover {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-height: 240px;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            background: #222;
+        }
+
+        .fsp-info-song { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .fsp-info-artist { font-size: 15px; opacity: 0.7; margin-bottom: 18px; }
+
+        .fsp-info-section-title {
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin: 18px 0 8px;
+        }
+
+        .fsp-credit { display: flex; gap: 10px; padding: 4px 0; font-size: 14px; }
+        .fsp-credit .role { flex: 0 0 auto; min-width: 76px; opacity: 0.6; }
+        .fsp-credit .val { flex: 1 1 auto; }
+
+        .fsp-link {
+            display: block;
+            padding: 11px 14px;
+            margin-top: 8px;
+            border-radius: 10px;
+            color: #fff;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.08);
+            transition: background 0.2s ease;
+        }
+
+        .fsp-link:hover { background: rgba(140, 168, 255, 0.22); }
+        .fsp-muted { opacity: 0.55; font-size: 13px; }
+
         @media (max-width: 760px) {
-            #fsp-main { flex-direction: column; gap: 18px; padding-top: 4vh; }
+            #fsp-main { flex-direction: column; gap: 18px; padding-top: 8vh; }
             #fsp-art { width: clamp(150px, 30vh, 220px); height: clamp(150px, 30vh, 220px); }
             #fsp-side { flex: 1 1 auto; width: 100%; height: auto; text-align: center; }
             .fsp-line { text-align: center; transform-origin: center; }
+            #fsp-toolbar { top: 10px; right: 10px; }
         }
     </style>
 </head>
@@ -387,8 +501,17 @@
         <div id="app"></div>
     </div>
 
-    <div id="fsp">
+    <div id="fsp" class="view-both">
         <div id="fsp-bg"></div>
+
+        <div id="fsp-toolbar">
+            <button id="fsp-info-btn" class="fsp-tool-btn" type="button" title="歌曲详情">&#9432; 详情</button>
+            <div id="fsp-viewmode" class="fsp-seg">
+                <button type="button" data-mode="art">封面</button>
+                <button type="button" data-mode="lyrics">歌词</button>
+                <button type="button" data-mode="both" class="active">双栏</button>
+            </div>
+        </div>
 
         <div id="fsp-main">
             <div id="fsp-art-wrap">
@@ -429,12 +552,20 @@
             </div>
         </div>
 
-        <div id="fsp-playlist">
-            <div class="fsp-pl-head">
+        <div id="fsp-playlist" class="fsp-panel">
+            <div class="fsp-panel-head">
                 <span>播放列表</span>
-                <button id="fsp-pl-close" type="button" aria-label="关闭">&times;</button>
+                <button id="fsp-pl-close" class="fsp-panel-close" type="button" aria-label="关闭">&times;</button>
             </div>
             <div id="fsp-playlist-items"></div>
+        </div>
+
+        <div id="fsp-info" class="fsp-panel">
+            <div class="fsp-panel-head">
+                <span>歌曲详情</span>
+                <button id="fsp-info-close" class="fsp-panel-close" type="button" aria-label="关闭">&times;</button>
+            </div>
+            <div id="fsp-info-body"></div>
         </div>
     </div>
 
@@ -511,6 +642,28 @@
             return out;
         }
 
+        // Pull production credits (composer/lyricist/arranger/...) out of the
+        // lyric text, since they are embedded as the first lyric lines.
+        var CREDIT_RE = /^(作曲|作詞|作词|編曲|编曲|製作人|制作人|製作|制作|和聲|和声|混音|母帶|母带|吉他|貝斯|贝斯|鼓|弦樂|弦乐|監製|监制|統籌|统筹|演唱|Producer|Composer|Lyricist|Arranger|Mixing|Mastering|Guitar|Bass|Drums|Vocals?)\s*(?:[:：])/i;
+        function parseCredits(raw) {
+            var out = [];
+            if (!raw) return out;
+            var seen = {};
+            raw.split(/\r?\n/).forEach(function (line) {
+                var text = line.replace(/\[[^\]]*\]/g, '').trim();
+                if (!CREDIT_RE.test(text)) return;
+                var parts = text.split(/[:：]/);
+                var role = parts.shift().trim();
+                var val = parts.join(':').trim();
+                if (!val) return;
+                var key = role + '|' + val;
+                if (seen[key]) return;
+                seen[key] = 1;
+                out.push({ role: role, val: val });
+            });
+            return out;
+        }
+
         function fmtTime(sec) {
             if (!isFinite(sec) || sec < 0) sec = 0;
             sec = Math.floor(sec);
@@ -541,6 +694,8 @@
             var modeBtn = document.getElementById('fsp-mode');
             var plPanel = document.getElementById('fsp-playlist');
             var plItems = document.getElementById('fsp-playlist-items');
+            var infoPanel = document.getElementById('fsp-info');
+            var infoBody = document.getElementById('fsp-info-body');
 
             var PLAY_SVG = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
             var PAUSE_SVG = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
@@ -551,9 +706,8 @@
             var duration = 0;
             var seeking = false;
             var curIdx = 0;
+            var userScrollUntil = 0;   // pause lyric auto-follow while user scrolls
 
-            // The cplayer facade exposes `nowplaypoint` (getter), not nowpoint().
-            // Resolve the index robustly by matching the current source URL.
             function indexBySrc(src) {
                 if (src) {
                     for (var i = 0; i < trackData.length; i++) {
@@ -564,6 +718,12 @@
                 return curIdx;
             }
 
+            function scrollActiveIntoView() {
+                var el = lineEls[activeIdx];
+                if (!el) return;
+                lyricsView.scrollTop = el.offsetTop - lyricsView.clientHeight / 2 + el.clientHeight / 2;
+            }
+
             function setActive(idx) {
                 if (idx === activeIdx) return;
                 if (lineEls[activeIdx]) lineEls[activeIdx].classList.remove('fsp-active');
@@ -571,8 +731,7 @@
                 var el = lineEls[idx];
                 if (!el) return;
                 el.classList.add('fsp-active');
-                var offset = el.offsetTop + el.clientHeight / 2 - lyricsView.clientHeight / 2;
-                linesBox.style.transform = 'translateY(' + (-offset) + 'px)';
+                if (Date.now() > userScrollUntil) scrollActiveIntoView();
             }
 
             function syncLyrics(t) {
@@ -597,31 +756,35 @@
                 linesBox.innerHTML = '';
                 lineEls = [];
                 activeIdx = -1;
+                userScrollUntil = 0;
                 if (!lyrics.length) {
                     root.classList.add('no-lyrics');
-                    linesBox.style.transform = 'translateY(0)';
                 } else {
                     root.classList.remove('no-lyrics');
                     lyrics.forEach(function (item, i) {
                         var p = document.createElement('p');
                         p.className = 'fsp-line';
                         p.textContent = item.text;
+                        p.title = '点击跳转到 ' + fmtTime(item.time);
                         p.addEventListener('click', function () {
                             if (player.setCurrentTime) player.setCurrentTime(item.time);
                             if (!player.isPlaying()) player.play();
+                            userScrollUntil = 0;          // resume auto-follow
+                            setActive(-1);
+                            setActive(i);
                         });
                         linesBox.appendChild(p);
                         lineEls.push(p);
                     });
-                    setActive(0);
                 }
+                lyricsView.scrollTop = 0;
                 highlightPlaylist(idx);
+                if (infoPanel.classList.contains('open')) renderInfo(idx);
             }
 
             function updatePlayIcon(playing) {
                 playBtn.innerHTML = playing ? PAUSE_SVG : PLAY_SVG;
-                if (playing) { artBox.classList.add('playing'); }
-                else { artBox.classList.remove('playing'); }
+                artBox.classList.toggle('playing', !!playing);
             }
 
             function updateMode() {
@@ -636,7 +799,6 @@
                 trackData.forEach(function (d, i) {
                     var item = document.createElement('div');
                     item.className = 'fsp-pl-item';
-                    item.dataset.idx = i;
                     var img = document.createElement('img');
                     if (d.poster) img.src = d.poster;
                     var meta = document.createElement('div');
@@ -652,9 +814,6 @@
                     item.appendChild(img);
                     item.appendChild(meta);
                     item.addEventListener('click', function () {
-                        // openAudio() auto-resumes when already playing; only
-                        // trigger play() ourselves if the player was paused,
-                        // otherwise a second play() during the load throws AbortError.
                         var wasPlaying = player.isPlaying();
                         player.to(i);
                         if (!wasPlaying) player.play();
@@ -670,7 +829,43 @@
                 }
             }
 
-            // Events
+            function renderInfo(idx) {
+                var d = trackData[idx] || {};
+                var credits = parseCredits(d.lyric);
+                var q = encodeURIComponent(((d.artist || '') + ' ' + (d.name || '')).trim());
+                var qa = encodeURIComponent(d.artist || '');
+                var html = '';
+                if (d.poster) html += '<img id="fsp-info-cover" src="' + d.poster + '" alt="cover" />';
+                html += '<div class="fsp-info-song"></div><div class="fsp-info-artist"></div>';
+                if (credits.length) {
+                    html += '<div class="fsp-info-section-title">制作信息</div>';
+                    credits.forEach(function (c) {
+                        html += '<div class="fsp-credit"><span class="role"></span><span class="val"></span></div>';
+                    });
+                } else {
+                    html += '<div class="fsp-info-section-title">制作信息</div><div class="fsp-muted">歌词文件中未提供制作信息。</div>';
+                }
+                html += '<div class="fsp-info-section-title">了解更多</div>';
+                html += '<a class="fsp-link" target="_blank" rel="noopener" href="https://www.google.com/search?q=' + q + '">搜索这首歌</a>';
+                html += '<a class="fsp-link" target="_blank" rel="noopener" href="https://www.google.com/search?q=' + qa + '">搜索歌手 / 专辑</a>';
+                if (d.artist) {
+                    html += '<a class="fsp-link" target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/' + encodeURIComponent(d.artist) + '">维基百科：' + '' + '</a>';
+                }
+                infoBody.innerHTML = html;
+                // Fill text via textContent to avoid HTML injection from lyric data.
+                infoBody.querySelector('.fsp-info-song').textContent = d.name || '';
+                infoBody.querySelector('.fsp-info-artist').textContent = d.artist || '';
+                var creditEls = infoBody.querySelectorAll('.fsp-credit');
+                credits.forEach(function (c, i) {
+                    if (!creditEls[i]) return;
+                    creditEls[i].querySelector('.role').textContent = c.role;
+                    creditEls[i].querySelector('.val').textContent = c.val;
+                });
+                var wiki = infoBody.querySelector('.fsp-link[href*="wikipedia"]');
+                if (wiki) wiki.textContent = '维基百科：' + (d.artist || '');
+            }
+
+            // ---- Events ----
             player.on('timeupdate', function (t, dur) {
                 if (dur) duration = dur;
                 curEl.textContent = fmtTime(t);
@@ -698,7 +893,7 @@
                 if (!volDragging) volRange.value = v;
             });
 
-            // Controls
+            // ---- Controls ----
             playBtn.addEventListener('click', function () { player.togglePlayState(); });
             document.getElementById('fsp-prev').addEventListener('click', function () { player.prev(); });
             document.getElementById('fsp-next').addEventListener('click', function () { player.next(); });
@@ -723,22 +918,49 @@
             });
             volRange.addEventListener('change', function () { volDragging = false; });
 
-            document.getElementById('fsp-list-btn').addEventListener('click', function () { plPanel.classList.add('open'); });
+            // Manual lyric scrolling pauses auto-follow for a few seconds.
+            function pauseFollow() { userScrollUntil = Date.now() + 4000; }
+            lyricsView.addEventListener('wheel', pauseFollow, { passive: true });
+            lyricsView.addEventListener('touchmove', pauseFollow, { passive: true });
+            lyricsView.addEventListener('mousedown', pauseFollow);
+
+            // View-mode toggle (album only / lyrics only / both)
+            var viewButtons = document.querySelectorAll('#fsp-viewmode button');
+            function setView(mode) {
+                root.classList.remove('view-art', 'view-lyrics', 'view-both');
+                root.classList.add('view-' + mode);
+                for (var i = 0; i < viewButtons.length; i++) {
+                    viewButtons[i].classList.toggle('active', viewButtons[i].dataset.mode === mode);
+                }
+                userScrollUntil = 0;
+                // Recenter the active lyric after the layout changes.
+                setTimeout(scrollActiveIntoView, 60);
+            }
+            for (var vi = 0; vi < viewButtons.length; vi++) {
+                (function (btn) {
+                    btn.addEventListener('click', function () { setView(btn.dataset.mode); });
+                })(viewButtons[vi]);
+            }
+
+            // Panels (only one open at a time)
+            function openPanel(panel) {
+                plPanel.classList.remove('open');
+                infoPanel.classList.remove('open');
+                panel.classList.add('open');
+            }
+            document.getElementById('fsp-list-btn').addEventListener('click', function () { openPanel(plPanel); });
             document.getElementById('fsp-pl-close').addEventListener('click', function () { plPanel.classList.remove('open'); });
+            document.getElementById('fsp-info-btn').addEventListener('click', function () { renderInfo(curIdx); openPanel(infoPanel); });
+            document.getElementById('fsp-info-close').addEventListener('click', function () { infoPanel.classList.remove('open'); });
+
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') plPanel.classList.remove('open');
+                if (e.key === 'Escape') { plPanel.classList.remove('open'); infoPanel.classList.remove('open'); }
                 if (e.code === 'Space' && e.target === document.body) {
                     e.preventDefault();
                     player.togglePlayState();
                 }
             });
-            window.addEventListener('resize', function () {
-                if (lineEls[activeIdx]) {
-                    var el = lineEls[activeIdx];
-                    var offset = el.offsetTop + el.clientHeight / 2 - lyricsView.clientHeight / 2;
-                    linesBox.style.transform = 'translateY(' + (-offset) + 'px)';
-                }
-            });
+            window.addEventListener('resize', scrollActiveIntoView);
 
             // Swallow the harmless "play() interrupted by a new load/pause"
             // AbortError that fires when rapidly switching tracks.
@@ -746,7 +968,7 @@
                 if (e.reason && e.reason.name === 'AbortError') e.preventDefault();
             });
 
-            // Initial render
+            // ---- Initial render ----
             buildPlaylist();
             updateMode();
             updatePlayIcon(player.isPlaying());
