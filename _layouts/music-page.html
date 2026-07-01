@@ -75,9 +75,9 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(circle at 22% 16%, rgba(10, 132, 255, 0.2), transparent 46%),
-                radial-gradient(circle at 78% 70%, rgba(191, 90, 242, 0.16), transparent 44%),
-                radial-gradient(circle at 50% 108%, rgba(0, 0, 0, 0.28), rgba(6, 6, 12, 0.55));
+                radial-gradient(circle at 22% 16%, rgba(10, 132, 255, 0.28), transparent 48%),
+                radial-gradient(circle at 78% 70%, rgba(191, 90, 242, 0.22), transparent 46%),
+                radial-gradient(circle at 50% 108%, rgba(0, 0, 0, 0.18), rgba(6, 6, 12, 0.42));
         }
 
         #fsp-liquid {
@@ -141,11 +141,15 @@
             isolation: isolate;
             overflow: hidden;
             background:
-                linear-gradient(155deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.07) 38%, rgba(255, 255, 255, 0.03) 100%);
+                linear-gradient(168deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.12) 24%, rgba(255, 255, 255, 0.05) 58%, rgba(10, 132, 255, 0.06) 100%);
             backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
             -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-            border: 0.5px solid rgba(255, 255, 255, 0.24);
-            box-shadow: var(--glass-inset), var(--glass-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.38);
+            box-shadow:
+                inset 0 2px 0 rgba(255, 255, 255, 0.62),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+                0 22px 56px rgba(0, 0, 0, 0.28),
+                0 0 48px rgba(10, 132, 255, 0.1);
         }
 
         .fsp-liquid-glass::before {
@@ -155,29 +159,27 @@
             border-radius: inherit;
             background: linear-gradient(
                 180deg,
-                rgba(255, 255, 255, 0.34) 0%,
-                rgba(255, 255, 255, 0.08) 18%,
-                transparent 42%,
-                transparent 72%,
-                rgba(255, 255, 255, 0.06) 100%
+                rgba(255, 255, 255, 0.55) 0%,
+                rgba(255, 255, 255, 0.14) 12%,
+                transparent 38%,
+                transparent 100%
             );
             pointer-events: none;
             z-index: 0;
-            animation: liquid-sheen 9s ease-in-out infinite;
         }
 
         .fsp-liquid-glass::after {
             content: "";
             position: absolute;
-            top: -40%;
-            left: -15%;
-            width: 72%;
-            height: 72%;
+            top: -35%;
+            left: -10%;
+            width: 65%;
+            height: 65%;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, transparent 68%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, transparent 65%);
             pointer-events: none;
             z-index: 0;
-            filter: blur(8px);
+            filter: blur(10px);
         }
 
         .fsp-liquid-glass > * { position: relative; z-index: 1; }
@@ -554,9 +556,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-wrap: wrap;
-            gap: clamp(10px, 3vw, 34px);
+            flex-wrap: nowrap;
+            gap: clamp(6px, 2vw, 20px);
             margin-top: 12px;
+            width: 100%;
+        }
+
+        .fsp-controls-extra {
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 2vw, 20px);
+            flex: 0 0 auto;
         }
 
         .fsp-btn {
@@ -886,21 +896,53 @@
 
             #fsp-playlist.open { transform: translate3d(0, 0, 0); }
 
-            .fsp-controls { gap: 8px 12px; }
-            .fsp-vol { width: 68px; }
-            #fsp-play {
-                width: 56px;
-                height: 56px;
-                min-width: 56px;
-                min-height: 56px;
-                flex: 0 0 56px;
+            .fsp-controls {
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                gap: 4px;
             }
-            #fsp-play svg { width: 26px; height: 26px; }
+
+            .fsp-controls-extra {
+                display: contents;
+            }
+
+            .fsp-vol { display: none; }
+
+            .fsp-btn {
+                width: 36px;
+                height: 36px;
+                padding: 0;
+            }
+
+            .fsp-btn svg { width: 20px; height: 20px; }
+
+            #fsp-play {
+                width: 48px;
+                height: 48px;
+                min-width: 48px;
+                min-height: 48px;
+                flex: 0 0 48px;
+            }
+
+            #fsp-play svg { width: 24px; height: 24px; }
+
+            #fsp-view-btn .fsp-view-label {
+                font-size: 7px;
+                bottom: 0;
+                right: 0;
+            }
         }
 
         @media (max-width: 420px) {
-            .fsp-vol { display: none; }
-            .fsp-controls { gap: 6px 12px; }
+            .fsp-controls { gap: 2px; }
+            .fsp-btn { width: 34px; height: 34px; }
+            #fsp-play {
+                width: 46px;
+                height: 46px;
+                min-width: 46px;
+                min-height: 46px;
+                flex: 0 0 46px;
+            }
         }
     </style>
 </head>
@@ -961,17 +1003,19 @@
                 <button id="fsp-next" class="fsp-btn" type="button" title="下一首">
                     <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
                 </button>
-                <div class="fsp-vol">
-                    <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12z"/></svg>
-                    <input id="fsp-vol-range" class="fsp-range" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="音量" />
+                <div class="fsp-controls-extra">
+                    <div class="fsp-vol">
+                        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12z"/></svg>
+                        <input id="fsp-vol-range" class="fsp-range" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="音量" />
+                    </div>
+                    <button id="fsp-view-btn" class="fsp-btn" type="button" title="显示模式：封面+歌词">
+                        <svg viewBox="0 0 24 24"><path d="M4 5h7v7H4zm9 0h7v7h-7zM4 14h7v7H4zm9 0h7v7h-7z"/></svg>
+                        <span class="fsp-view-label">全</span>
+                    </button>
+                    <button id="fsp-list-btn" class="fsp-btn" type="button" title="播放列表">
+                        <svg viewBox="0 0 24 24"><path d="M3 6h13v2H3zm0 5h13v2H3zm0 5h9v2H3zm15-9l4 3-4 3z"/></svg>
+                    </button>
                 </div>
-                <button id="fsp-view-btn" class="fsp-btn" type="button" title="显示模式：封面+歌词">
-                    <svg viewBox="0 0 24 24"><path d="M4 5h7v7H4zm9 0h7v7h-7zM4 14h7v7H4zm9 0h7v7h-7z"/></svg>
-                    <span class="fsp-view-label">全</span>
-                </button>
-                <button id="fsp-list-btn" class="fsp-btn" type="button" title="播放列表">
-                    <svg viewBox="0 0 24 24"><path d="M3 6h13v2H3zm0 5h13v2H3zm0 5h9v2H3zm15-9l4 3-4 3z"/></svg>
-                </button>
             </div>
         </div>
 
