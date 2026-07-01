@@ -314,7 +314,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: clamp(14px, 3vw, 34px);
+            flex-wrap: wrap;
+            gap: clamp(10px, 3vw, 34px);
             margin-top: 12px;
         }
 
@@ -322,6 +323,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            flex: 0 0 auto;
             background: transparent;
             border: none;
             color: #fff;
@@ -332,11 +334,16 @@
         }
 
         .fsp-btn:hover { opacity: 1; transform: scale(1.08); }
-        .fsp-btn svg { width: 26px; height: 26px; fill: currentColor; }
+        .fsp-btn svg { width: 26px; height: 26px; fill: currentColor; flex: 0 0 auto; }
 
         #fsp-play {
             width: 62px;
             height: 62px;
+            min-width: 62px;
+            min-height: 62px;
+            flex: 0 0 62px;
+            aspect-ratio: 1;
+            padding: 0;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
             box-shadow: 0 8px 26px rgba(140, 111, 255, 0.5);
@@ -350,6 +357,8 @@
             align-items: center;
             gap: 8px;
             width: clamp(90px, 12vw, 150px);
+            flex: 0 1 auto;
+            min-width: 0;
         }
 
         .fsp-vol svg { width: 22px; height: 22px; fill: #fff; opacity: 0.85; flex: 0 0 auto; }
@@ -575,6 +584,22 @@
             #fsp-art { width: clamp(150px, 30vh, 220px); height: clamp(150px, 30vh, 220px); }
             #fsp-side { flex: 1 1 auto; width: 100%; height: auto; text-align: center; }
             .fsp-line { text-align: center; transform-origin: center; }
+            #fsp-bar { padding-left: 14px; padding-right: 14px; }
+            .fsp-controls { gap: 8px 14px; }
+            .fsp-vol { width: 68px; }
+            #fsp-play {
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+                min-height: 56px;
+                flex: 0 0 56px;
+            }
+            #fsp-play svg { width: 26px; height: 26px; }
+        }
+
+        @media (max-width: 420px) {
+            .fsp-vol { display: none; }
+            .fsp-controls { gap: 6px 12px; }
         }
     </style>
 </head>
