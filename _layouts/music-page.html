@@ -10,6 +10,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- <link rel="manifest" href="/manifest.json"> -->
     <meta name="theme-color" content="#f8f8f8" />
+    <style>
+        /* Fullscreen line-by-line lyrics feature */
+        #fs-lyrics-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 9998;
+            padding: 8px 16px;
+            font-size: 14px;
+            line-height: 1;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        #fs-lyrics-toggle:hover {
+            background: rgba(0, 0, 0, 0.75);
+            transform: translateY(-1px);
+        }
+
+        #fs-lyrics {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            background: radial-gradient(circle at 50% 30%, #2a2a45 0%, #12121c 60%, #050509 100%);
+            opacity: 1;
+            transition: opacity 0.35s ease;
+            overflow: hidden;
+        }
+
+        #fs-lyrics.fs-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #fs-lyrics-close {
+            position: absolute;
+            top: 14px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            font-size: 30px;
+            line-height: 40px;
+            color: #fff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        #fs-lyrics-close:hover {
+            opacity: 1;
+        }
+
+        #fs-lyrics-song {
+            flex: 0 0 auto;
+            margin: 42px 20px 6px;
+            text-align: center;
+            font-size: clamp(18px, 3vw, 26px);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        #fs-lyrics-song .fs-artist {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.6em;
+            font-weight: 400;
+            opacity: 0.65;
+        }
+
+        #fs-lyrics-viewport {
+            position: relative;
+            flex: 1 1 auto;
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+        }
+
+        #fs-lyrics-lines {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            padding: 50vh 24px;
+            text-align: center;
+            transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+            will-change: transform;
+        }
+
+        .fs-line {
+            margin: 0;
+            padding: 14px 0;
+            font-size: clamp(20px, 3.4vw, 34px);
+            line-height: 1.35;
+            color: rgba(255, 255, 255, 0.4);
+            transform: scale(0.92);
+            transition: color 0.35s ease, transform 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
+            filter: blur(0.4px);
+            cursor: pointer;
+        }
+
+        .fs-line.fs-active {
+            color: #fff;
+            font-weight: 700;
+            transform: scale(1.06);
+            filter: none;
+            text-shadow: 0 0 22px rgba(140, 170, 255, 0.55);
+        }
+
+        #fs-lyrics-empty {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            text-align: center;
+            font-size: clamp(16px, 2.4vw, 22px);
+            opacity: 0.6;
+            display: none;
+        }
+
+        #fs-lyrics.fs-no-sync #fs-lyrics-empty {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
@@ -17,6 +155,15 @@
         <div id="app"></div>
     </div>
 
+    <button id="fs-lyrics-toggle" type="button" title="全屏歌词">全屏歌词</button>
+    <div id="fs-lyrics" class="fs-hidden" aria-hidden="true">
+        <button id="fs-lyrics-close" type="button" aria-label="关闭全屏歌词">&times;</button>
+        <div id="fs-lyrics-song"></div>
+        <div id="fs-lyrics-viewport">
+            <div id="fs-lyrics-lines"></div>
+        </div>
+        <div id="fs-lyrics-empty">当前歌曲暂无同步歌词</div>
+    </div>
 
     <script src="/assets/js/cplayer.js"></script>
     <script>
@@ -24,51 +171,184 @@
         {% if page.baseurl %}
         baseurl = '{{page.baseurl}}';
         {% endif %}
-        let lyric = '';
-        let lyrics = '';
         let playlist = [];
         let promises = [];
         {% for details in page.playlist %}
-        var tmp = new Promise(function (resolve, reject) {
-            let _resolve = resolve;
-            $.get(baseurl + encodeURI(encodeURI("{{ details.lyric }}")), function (d, status) {
-                if (status == "success") {
-                    lyric = d;
-                    _resolve();
-                }
-            });
-        }).then(function (data) {
-            {% if details.lyrictrans %}
-            $.get(baseurl + encodeURI(encodeURI("{{ details.lyrictrans }}")), function (d2, status) {
-                if (status == "success") {
-                    lyrics = d2;
-                    Promise.resolve();
-                }
-            });
-            {% else %}
-            Promise.resolve();
-            {% endif %}
-        }).then(function (data) {
-            let songname = '{{ details.song }}'.split('/');
-            songname = songname[songname.length - 1];
+        var tmp = (function () {
+            // Use per-track locals so async callbacks never clobber each other's lyrics.
+            var _lyric = '';
+            var _sublyric = '';
+            return new Promise(function (resolve) {
+                $.get(baseurl + encodeURI(encodeURI("{{ details.lyric }}")), function (d, status) {
+                    if (status == "success") { _lyric = d; }
+                    resolve();
+                }).error(function () { resolve(); });
+            }).then(function () {
+                {% if details.lyrictrans %}
+                return new Promise(function (resolve) {
+                    $.get(baseurl + encodeURI(encodeURI("{{ details.lyrictrans }}")), function (d2, status) {
+                        if (status == "success") { _sublyric = d2; }
+                        resolve();
+                    }).error(function () { resolve(); });
+                });
+                {% else %}
+                return Promise.resolve();
+                {% endif %}
+            }).then(function () {
+                let songname = '{{ details.song }}'.split('/');
+                songname = songname[songname.length - 1];
 
-            playlist.push({
-                src: baseurl + encodeURI(encodeURI('{{ details.song }}')),
-                poster: baseurl+'{{ details.poster }}',
-                name: '{{ details.title }}' || songname.split('-')[1],
-                artist: '{{ details.artist }}' || songname.split('-')[0],
-                lyric: lyric,
-                sublyric: lyrics
+                playlist.push({
+                    src: baseurl + encodeURI(encodeURI('{{ details.song }}')),
+                    poster: baseurl + '{{ details.poster }}',
+                    name: '{{ details.title }}' || songname.split('-')[1],
+                    artist: '{{ details.artist }}' || songname.split('-')[0],
+                    lyric: _lyric,
+                    sublyric: _sublyric
+                });
             });
-        });
+        })();
         promises.push(tmp);
         {% endfor %}
         Promise.all(promises).then((res) => {
+            // Snapshot raw lyrics/metadata before cplayer parses/mutates the items.
+            var lyricData = playlist.map(function (it) {
+                return { name: it.name, artist: it.artist, lyric: it.lyric };
+            });
             let player = new cplayer({ element: document.getElementById('app'), playlist: playlist });
-
-        }).catch(() => {
-            console.log("bbb");
+            initFullscreenLyrics(player, lyricData);
+        }).catch((err) => {
+            console.log("playlist init error", err);
         });
+
+        // ---- Fullscreen line-by-line lyrics ----
+        function parseLrc(raw) {
+            var lines = [];
+            if (!raw) return lines;
+            var tag = /\[(\d{1,2}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
+            raw.split(/\r?\n/).forEach(function (line) {
+                tag.lastIndex = 0;
+                var times = [];
+                var m;
+                while ((m = tag.exec(line))) {
+                    var frac = m[3] ? parseInt((m[3] + '00').slice(0, 3), 10) / 1000 : 0;
+                    times.push(parseInt(m[1], 10) * 60 + parseInt(m[2], 10) + frac);
+                }
+                var text = line.replace(tag, '').trim();
+                if (!times.length || !text) return;
+                times.forEach(function (t) { lines.push({ time: t, text: text }); });
+            });
+            lines.sort(function (a, b) { return a.time - b.time; });
+            return lines;
+        }
+
+        function initFullscreenLyrics(player, lyricData) {
+            var overlay = document.getElementById('fs-lyrics');
+            var linesBox = document.getElementById('fs-lyrics-lines');
+            var viewport = document.getElementById('fs-lyrics-viewport');
+            var songBox = document.getElementById('fs-lyrics-song');
+            var toggleBtn = document.getElementById('fs-lyrics-toggle');
+            var closeBtn = document.getElementById('fs-lyrics-close');
+
+            var lineEls = [];
+            var parsed = [];
+            var activeIdx = -1;
+
+            function currentIndex() {
+                try { return player.nowpoint(); } catch (e) { return 0; }
+            }
+
+            function renderTrack() {
+                var idx = currentIndex();
+                var data = lyricData[idx] || {};
+                songBox.innerHTML = '';
+                var title = document.createTextNode(data.name || '');
+                songBox.appendChild(title);
+                if (data.artist) {
+                    var a = document.createElement('span');
+                    a.className = 'fs-artist';
+                    a.textContent = data.artist;
+                    songBox.appendChild(a);
+                }
+
+                parsed = parseLrc(data.lyric);
+                linesBox.innerHTML = '';
+                lineEls = [];
+                activeIdx = -1;
+
+                if (!parsed.length) {
+                    overlay.classList.add('fs-no-sync');
+                    linesBox.style.transform = 'translateY(0)';
+                    return;
+                }
+                overlay.classList.remove('fs-no-sync');
+                parsed.forEach(function (item, i) {
+                    var p = document.createElement('p');
+                    p.className = 'fs-line';
+                    p.textContent = item.text;
+                    p.addEventListener('click', function () {
+                        if (player.setCurrentTime) { player.setCurrentTime(item.time); }
+                        if (!player.isPlaying()) { player.play(); }
+                        setActive(i, true);
+                    });
+                    linesBox.appendChild(p);
+                    lineEls.push(p);
+                });
+                setActive(0, false);
+            }
+
+            function setActive(idx, force) {
+                if (idx === activeIdx && !force) return;
+                if (lineEls[activeIdx]) lineEls[activeIdx].classList.remove('fs-active');
+                activeIdx = idx;
+                var el = lineEls[idx];
+                if (!el) return;
+                el.classList.add('fs-active');
+                var offset = el.offsetTop + el.clientHeight / 2 - viewport.clientHeight / 2;
+                linesBox.style.transform = 'translateY(' + (-offset) + 'px)';
+            }
+
+            function syncToTime(t) {
+                if (!parsed.length) return;
+                var idx = 0;
+                for (var i = 0; i < parsed.length; i++) {
+                    if (parsed[i].time <= t + 0.15) { idx = i; } else { break; }
+                }
+                setActive(idx, false);
+            }
+
+            player.on('timeupdate', function (t) {
+                if (!overlay.classList.contains('fs-hidden')) { syncToTime(t); }
+            });
+            player.on('openaudio', function () {
+                renderTrack();
+                if (player.audioElement) { syncToTime(player.audioElement.currentTime || 0); }
+            });
+
+            function open() {
+                renderTrack();
+                overlay.classList.remove('fs-hidden');
+                overlay.setAttribute('aria-hidden', 'false');
+                if (player.audioElement) { syncToTime(player.audioElement.currentTime || 0); }
+            }
+            function close() {
+                overlay.classList.add('fs-hidden');
+                overlay.setAttribute('aria-hidden', 'true');
+            }
+
+            toggleBtn.addEventListener('click', open);
+            closeBtn.addEventListener('click', close);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !overlay.classList.contains('fs-hidden')) { close(); }
+            });
+            window.addEventListener('resize', function () {
+                if (!overlay.classList.contains('fs-hidden') && lineEls[activeIdx]) {
+                    setActive(activeIdx, true);
+                }
+            });
+
+            renderTrack();
+        }
     </script>
 </body>
 
