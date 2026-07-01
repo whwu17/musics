@@ -28,7 +28,12 @@ dev commands live in `README.md` (`bundle install`, `bundle exec jekyll serve`).
 ### Running the site
 - Dev server: `bundle exec jekyll serve --host 0.0.0.0 --port 4000 --livereload`
   (default port `4000`; LiveReload on `35729`).
-- The only content page is the music player at `/ceye/`. `/` (root) is the redirect/index.
+- `_config.yml` sets `baseurl: "/musics"` (the site is deployed as a GitHub Pages
+  project site at `https://whwu17.github.io/musics/`). So locally the player page is
+  at `http://localhost:4000/musics/ceye/` (NOT `/ceye/`). Reference site assets with
+  the `relative_url` filter (e.g. `{{ '/assets/..' | relative_url }}`) so they resolve
+  under the baseurl in production; a bare `/assets/..` path 404s on the project site.
+- Jekyll does NOT hot-reload `_config.yml`; restart `jekyll serve` after editing it.
 - The `Pagination ... couldn't find an index.html` warning at build time is harmless.
 
 ### External runtime dependencies

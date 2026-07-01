@@ -2,6 +2,12 @@
 # -----
 # Build
 
+# Deployed as a GitHub Pages project site at https://whwu17.github.io/musics/,
+# so the site lives under the "/musics" path. baseurl must match for absolute
+# asset URLs (via the relative_url filter) to resolve correctly in production.
+url: "https://whwu17.github.io"
+baseurl: "/musics"
+
 Timezone: Etc/UTC
 
 collections:
