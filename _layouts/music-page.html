@@ -483,7 +483,7 @@
         {% endfor %}
         Promise.all(promises).then(function () {
             var trackData = playlist.map(function (it) {
-                return { name: it.name, artist: it.artist, poster: it.poster, lyric: it.lyric };
+                return { name: it.name, artist: it.artist, poster: it.poster, lyric: it.lyric, src: it.src };
             });
             var player = new cplayer({ element: document.getElementById('app'), playlist: playlist, volume: 0.8 });
             initFullscreenPlayer(player, trackData);
@@ -550,9 +550,18 @@
             var activeIdx = -1;
             var duration = 0;
             var seeking = false;
+            var curIdx = 0;
 
-            function currentIndex() {
-                try { return player.nowpoint(); } catch (e) { return 0; }
+            // The cplayer facade exposes `nowplaypoint` (getter), not nowpoint().
+            // Resolve the index robustly by matching the current source URL.
+            function indexBySrc(src) {
+                if (src) {
+                    for (var i = 0; i < trackData.length; i++) {
+                        if (trackData[i].src === src) return i;
+                    }
+                }
+                if (typeof player.nowplaypoint === 'number') return player.nowplaypoint;
+                return curIdx;
             }
 
             function setActive(idx) {
@@ -575,8 +584,8 @@
                 setActive(idx);
             }
 
-            function loadTrack() {
-                var idx = currentIndex();
+            function loadTrack(idx) {
+                curIdx = idx;
                 var d = trackData[idx] || {};
                 titleEl.textContent = d.name || '';
                 artistEl.textContent = d.artist || '';
@@ -673,11 +682,11 @@
                 }
                 syncLyrics(t);
             });
-            player.on('openaudio', function () {
+            player.on('openaudio', function (track) {
                 duration = 0;
                 seek.value = 0;
                 seek.style.backgroundSize = '0% 100%';
-                loadTrack();
+                loadTrack(indexBySrc(track && track.src));
                 if (player.audioElement) syncLyrics(player.audioElement.currentTime || 0);
             });
             player.on('playstatechange', function (paused) { updatePlayIcon(!paused); });
@@ -742,7 +751,7 @@
             updateMode();
             updatePlayIcon(player.isPlaying());
             volRange.value = player.audioElement ? player.audioElement.volume : 0.8;
-            loadTrack();
+            loadTrack(indexBySrc(player.audioElement && player.audioElement.src));
         }
     </script>
 </body>
