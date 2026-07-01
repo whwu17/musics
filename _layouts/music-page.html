@@ -12,13 +12,13 @@
     <style>
         :root {
             --accent: #0a84ff;
-            --glass-blur: 48px;
-            --glass-saturate: 132%;
-            --glass-tint: rgba(255, 255, 255, 0.075);
-            --glass-tint-strong: rgba(255, 255, 255, 0.11);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --glass-rim: rgba(255, 255, 255, 0.28);
-            --glass-shadow: 0 14px 44px rgba(0, 0, 0, 0.26);
+            --glass-blur: 52px;
+            --glass-saturate: 140%;
+            --glass-tint: transparent;
+            --glass-tint-strong: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-rim: rgba(255, 255, 255, 0.24);
+            --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
             --fsp-gutter: clamp(16px, 4.5vw, 32px);
             --fsp-radius: 24px;
             --fsp-pill: 999px;
@@ -61,7 +61,7 @@
             inset: -14%;
             background-size: cover;
             background-position: center;
-            filter: blur(96px) saturate(118%) brightness(0.58);
+            filter: blur(96px) saturate(125%) brightness(0.68);
             transform: scale(1.14);
             transition: background-image 0.8s ease;
             z-index: 0;
@@ -72,52 +72,39 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 255, 255, 0.06), transparent 55%),
-                radial-gradient(ellipse 100% 80% at 50% 100%, rgba(0, 0, 0, 0.55), rgba(4, 4, 8, 0.72));
+                radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 255, 255, 0.04), transparent 55%),
+                radial-gradient(ellipse 100% 80% at 50% 100%, rgba(0, 0, 0, 0.38), rgba(4, 4, 8, 0.55));
         }
 
         #fsp-liquid { display: none; }
 
-        /* Liquid glass — neutral tint; color comes from blurred backdrop only */
+        /* Clear glass — no fill color, only blur + edge light */
         .fsp-liquid-glass {
             position: relative;
             isolation: isolate;
             overflow: hidden;
-            background: var(--glass-tint);
+            background: transparent;
             backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
             -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
             border: 0.5px solid var(--glass-border);
             box-shadow:
                 inset 0 1px 0 var(--glass-rim),
-                inset 0 -1px 0 rgba(255, 255, 255, 0.04),
                 var(--glass-shadow);
         }
 
         .fsp-liquid-glass::before {
             content: "";
             position: absolute;
-            left: 10%;
-            right: 10%;
+            left: 8%;
+            right: 8%;
             top: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
             pointer-events: none;
             z-index: 2;
         }
 
-        .fsp-liquid-glass::after {
-            content: "";
-            position: absolute;
-            top: -55%;
-            left: 8%;
-            width: 48%;
-            height: 48%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, transparent 68%);
-            pointer-events: none;
-            z-index: 0;
-            filter: blur(18px);
-        }
+        .fsp-liquid-glass::after { display: none; }
 
         .fsp-liquid-glass > * { position: relative; z-index: 1; }
 
@@ -238,9 +225,9 @@
             height: 34px;
             border-radius: 50%;
             border: 0.5px solid var(--glass-border);
-            background: var(--glass-tint);
-            backdrop-filter: blur(16px) saturate(130%);
-            -webkit-backdrop-filter: blur(16px) saturate(130%);
+            background: transparent;
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
             color: rgba(255, 255, 255, 0.9);
             font-size: 15px;
             font-weight: 600;
@@ -278,14 +265,14 @@
 
         #fsp-lyrics-follow {
             display: none;
-            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            border: 0.5px solid var(--glass-border);
             border-radius: var(--fsp-pill);
             padding: 5px 14px;
             font-size: 12px;
             color: rgba(255, 255, 255, 0.92);
-            background: var(--glass-tint-strong);
-            backdrop-filter: blur(16px) saturate(130%);
-            -webkit-backdrop-filter: blur(16px) saturate(130%);
+            background: transparent;
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
             box-shadow: inset 0 1px 0 var(--glass-rim);
             cursor: pointer;
         }
@@ -394,13 +381,13 @@
             border-radius: var(--fsp-radius);
             overflow: hidden;
             isolation: isolate;
-            background: rgba(16, 16, 22, 0.88);
-            backdrop-filter: blur(40px) saturate(130%);
-            -webkit-backdrop-filter: blur(40px) saturate(130%);
+            background: transparent;
+            backdrop-filter: blur(56px) saturate(145%);
+            -webkit-backdrop-filter: blur(56px) saturate(145%);
             border: 0.5px solid var(--glass-border);
             box-shadow:
                 inset 0 1px 0 var(--glass-rim),
-                0 20px 56px rgba(0, 0, 0, 0.4);
+                0 20px 56px rgba(0, 0, 0, 0.28);
             transform: translate3d(calc(100% + var(--fsp-gutter)), 0, 0);
             transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
             display: flex;
@@ -410,13 +397,18 @@
         #fsp-playlist::before {
             content: "";
             position: absolute;
-            left: 12%;
-            right: 12%;
+            left: 8%;
+            right: 8%;
             top: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
             pointer-events: none;
             z-index: 0;
+        }
+
+        .fsp-pl-name,
+        .fsp-pl-artist {
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
         }
 
         #fsp-playlist > * { position: relative; z-index: 1; }
@@ -493,15 +485,15 @@
             align-items: center;
             justify-content: center;
             flex: 0 0 auto;
-            background: var(--glass-tint);
+            background: transparent;
             border: 0.5px solid var(--glass-border);
             border-radius: 50%;
             color: rgba(255, 255, 255, 0.92);
             cursor: pointer;
             padding: 8px;
-            backdrop-filter: blur(20px) saturate(130%);
-            -webkit-backdrop-filter: blur(20px) saturate(130%);
-            box-shadow: inset 0 1px 0 var(--glass-rim), 0 4px 14px rgba(0, 0, 0, 0.14);
+            backdrop-filter: blur(24px) saturate(140%);
+            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            box-shadow: inset 0 1px 0 var(--glass-rim);
             transition: transform 0.15s ease, background 0.2s ease;
         }
 
@@ -520,17 +512,17 @@
             aspect-ratio: 1;
             padding: 0;
             border-radius: 50%;
-            border: 0.5px solid rgba(255, 255, 255, 0.34);
-            background: var(--glass-tint-strong);
-            backdrop-filter: blur(24px) saturate(140%);
-            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            border: 0.5px solid rgba(255, 255, 255, 0.28);
+            background: transparent;
+            backdrop-filter: blur(28px) saturate(150%);
+            -webkit-backdrop-filter: blur(28px) saturate(150%);
             box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.45),
-                0 10px 28px rgba(0, 0, 0, 0.22);
+                inset 0 1px 0 rgba(255, 255, 255, 0.38),
+                0 8px 24px rgba(0, 0, 0, 0.16);
         }
 
         #fsp-play:hover {
-            background: rgba(255, 255, 255, 0.16);
+            background: var(--glass-tint-strong);
         }
 
         #fsp-play svg { width: 30px; height: 30px; fill: rgba(255, 255, 255, 0.95); }
@@ -592,14 +584,14 @@
         }
 
         .fsp-pl-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         .fsp-pl-item.active {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.18);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.16);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
 
         .fsp-pl-item.active .fsp-pl-name { color: #fff; }
@@ -628,11 +620,13 @@
             right: -2px;
             font-size: 8px;
             font-weight: 700;
-            background: var(--glass-tint-strong);
+            background: transparent;
             border: 0.5px solid var(--glass-border);
             border-radius: 6px;
             padding: 1px 4px;
             line-height: 1.2;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         #fsp.fsp-view-art #fsp-side { display: none; }
@@ -744,9 +738,9 @@
             padding: 8px 14px;
             border-radius: 999px;
             border: 0.5px solid var(--glass-border);
-            background: var(--glass-tint);
-            backdrop-filter: blur(12px) saturate(130%);
-            -webkit-backdrop-filter: blur(12px) saturate(130%);
+            background: transparent;
+            backdrop-filter: blur(12px) saturate(140%);
+            -webkit-backdrop-filter: blur(12px) saturate(140%);
             color: #fff;
             text-decoration: none;
             font-size: 13px;
